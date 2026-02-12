@@ -15,14 +15,14 @@ WATCHMODE_BASE = "https://api.watchmode.com/v1"
 def _tmdb_key() -> str:
     key = os.getenv("TMDB_API_KEY")
     if not key:
-        raise RuntimeError("TMDB_API_KEY not found. Put it in moviechat/.env")
+        raise RuntimeError("TMDB_API_KEY not found. Put it in moviechatAI/.env")
     return key
 
 
 def _watchmode_key() -> str:
     key = os.getenv("WATCHMODE_API_KEY")
     if not key:
-        raise RuntimeError("WATCHMODE_API_KEY not found. Put it in moviechat/.env")
+        raise RuntimeError("WATCHMODE_API_KEY not found. Put it in moviechatAI/.env")
     return key
 
 
@@ -38,7 +38,13 @@ def tmdb_backdrop_url(backdrop_path: Optional[str], size: str = "w780") -> Optio
     return f"{TMDB_IMAGE_BASE}/{size}{backdrop_path}"
 
 
-def tmdb_discover_tv(genres: Optional[List[int]] = None, page: int = 1, language: Optional[str] = None) -> Dict[str, Any]:
+def tmdb_discover_movie(
+    genres: Optional[List[int]] = None,
+    page: int = 1,
+    language: Optional[str] = None,
+    year_from: Optional[int] = None,
+    year_to: Optional[int] = None,
+) -> Dict[str, Any]:
     params: Dict[str, Any] = {
         "api_key": _tmdb_key(),
         "page": page,
@@ -50,12 +56,24 @@ def tmdb_discover_tv(genres: Optional[List[int]] = None, page: int = 1, language
     if language:
         params["with_original_language"] = language
 
-    r = requests.get(f"{TMDB_BASE}/discover/tv", params=params, timeout=30)
+    # ✅ date filters for movies
+    if year_from:
+        params["primary_release_date.gte"] = f"{year_from}-01-01"
+    if year_to:
+        params["primary_release_date.lte"] = f"{year_to}-12-31"
+
+    r = requests.get(f"{TMDB_BASE}/discover/movie", params=params, timeout=30)
     r.raise_for_status()
     return r.json()
 
 
-def tmdb_discover_movie(genres: Optional[List[int]] = None, page: int = 1, language: Optional[str] = None) -> Dict[str, Any]:
+def tmdb_discover_tv(
+    genres: Optional[List[int]] = None,
+    page: int = 1,
+    language: Optional[str] = None,
+    year_from: Optional[int] = None,
+    year_to: Optional[int] = None,
+) -> Dict[str, Any]:
     params: Dict[str, Any] = {
         "api_key": _tmdb_key(),
         "page": page,
@@ -67,7 +85,13 @@ def tmdb_discover_movie(genres: Optional[List[int]] = None, page: int = 1, langu
     if language:
         params["with_original_language"] = language
 
-    r = requests.get(f"{TMDB_BASE}/discover/movie", params=params, timeout=30)
+    # ✅ date filters for TV
+    if year_from:
+        params["first_air_date.gte"] = f"{year_from}-01-01"
+    if year_to:
+        params["first_air_date.lte"] = f"{year_to}-12-31"
+
+    r = requests.get(f"{TMDB_BASE}/discover/tv", params=params, timeout=30)
     r.raise_for_status()
     return r.json()
 
@@ -99,19 +123,16 @@ def tmdb_get_trailer_url(tmdb_id: int, media_type: str) -> Optional[str]:
     r.raise_for_status()
 
     results = r.json().get("results", [])
-
     for v in results:
         if v.get("site") == "YouTube" and v.get("type") == "Trailer":
             key = v.get("key")
             if key:
                 return f"https://www.youtube.com/watch?v={key}"
-
     for v in results:
         if v.get("site") == "YouTube":
             key = v.get("key")
             if key:
                 return f"https://www.youtube.com/watch?v={key}"
-
     return None
 
 
