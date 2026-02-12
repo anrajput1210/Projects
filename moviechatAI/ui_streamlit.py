@@ -5,77 +5,89 @@ API_URL = "https://moviechatai-backend.onrender.com"
 
 st.set_page_config(page_title="MovieChat AI", page_icon="🎬", layout="wide")
 st.title("🎬 MovieChat AI")
-st.caption("Type naturally. Example: 'funny hindi crime series like sacred games'")
+st.caption("Example: hindi comedy movies released after 2015 | funny crime series like sacred games")
 
-text = st.text_input("What do you want to watch?", value="funny hindi crime series like sacred games")
-limit = st.slider("How many results?", 1, 20, 10)
+# Session state for load more
+if "results" not in st.session_state:
+    st.session_state.results = []
+if "page" not in st.session_state:
+    st.session_state.page = 1
+if "last_query" not in st.session_state:
+    st.session_state.last_query = ""
 
-if st.button("Get AI recommendations"):
-    payload = {"text": text, "limit": limit}
+text = st.text_input("What do you want to watch?", value="hindi comedy movies released after 2015")
+page_size = st.slider("Results per page", 5, 20, 10)
 
-    try:
-        r = requests.post(f"{API_URL}/ai", json=payload, timeout=60)
-        if r.status_code != 200:
-            st.error(f"Error {r.status_code}: {r.text}")
-        else:
-            data = r.json()
-            if not data:
-                st.warning("No matches. Try a different prompt.")
+colA, colB = st.columns([1, 1])
+
+def fetch(page: int):
+    payload = {"text": text, "page": page, "page_size": page_size}
+    r = requests.post(f"{API_URL}/ai", json=payload, timeout=90)
+    r.raise_for_status()
+    return r.json()
+
+with colA:
+    if st.button("Search / Reset"):
+        st.session_state.results = []
+        st.session_state.page = 1
+        st.session_state.last_query = text
+
+        data = fetch(1)
+        st.session_state.results.extend(data.get("items", []))
+        st.session_state.intent = data.get("intent", {})
+
+with colB:
+    if st.button("Load more"):
+        # if user changed text but didn't reset, treat as reset
+        if st.session_state.last_query != text:
+            st.session_state.results = []
+            st.session_state.page = 1
+            st.session_state.last_query = text
+
+        st.session_state.page += 1
+        data = fetch(st.session_state.page)
+        st.session_state.results.extend(data.get("items", []))
+        st.session_state.intent = data.get("intent", {})
+
+# Show intent summary
+intent = st.session_state.get("intent", {})
+if intent:
+    st.info(
+        f"Understood → type: `{intent.get('content_type')}` | "
+        f"lang: `{intent.get('language')}` | "
+        f"years: `{intent.get('year_from')}` to `{intent.get('year_to')}` | "
+        f"seed: `{intent.get('seed_title')}`"
+    )
+
+# Render results
+for i, item in enumerate(st.session_state.results, 1):
+    with st.container(border=True):
+        cols = st.columns([1, 2.5, 1])
+
+        with cols[0]:
+            if item.get("poster_url"):
+                st.image(item["poster_url"], use_container_width=True)
+
+        with cols[1]:
+            st.subheader(f"{i}. {item.get('title')}")
+            st.write(item.get("overview") or "")
+            st.markdown(
+                f"**Score:** `{item.get('score')}/100`  |  "
+                f"**TMDB:** `{item.get('rating')}`  |  "
+                f"**Lang:** `{item.get('language')}`"
+            )
+
+            avail = item.get("available_on")
+            st.write(f"📺 Available on: **{avail}**" if avail else "📺 Available on: *Unknown*")
+
+            if item.get("type") == "movie":
+                st.caption(f"Release: {item.get('release_date')}")
             else:
-                # Intent summary from first result (they all share same intent)
-                intent = data[0].get("intent") or {}
-                st.info(
-                    f"**Understood:** type = `{intent.get('content_type')}` | "
-                    f"language = `{intent.get('language')}` | "
-                    f"seed = `{intent.get('seed_title')}`"
-                )
+                st.caption(f"First air: {item.get('first_air_date')}")
 
-                for i, item in enumerate(data, 1):
-                    with st.container(border=True):
-                        cols = st.columns([1, 2.5, 1])
-
-                        # Poster
-                        with cols[0]:
-                            if item.get("poster_url"):
-                                st.image(item["poster_url"], use_container_width=True)
-                            else:
-                                st.write("No poster")
-
-                        # Text
-                        with cols[1]:
-                            st.subheader(f"{i}. {item.get('title')}")
-                            st.write(item.get("overview") or "")
-
-                            # Badges row
-                            score = item.get("score")
-                            rating = item.get("rating")
-                            lang = item.get("language")
-                            st.markdown(
-                                f"**Score:** `{score}/100`   |   "
-                                f"**TMDB:** `{rating}`   |   "
-                                f"**Lang:** `{lang}`"
-                            )
-
-                            # Availability text (no user subscription needed)
-                            avail = item.get("available_on")
-                            if avail:
-                                st.write(f"📺 Available on: **{avail}**")
-                            else:
-                                st.write("📺 Available on: *Unknown*")
-
-                            # Dates
-                            if item.get("type") == "movie":
-                                st.caption(f"Release: {item.get('release_date')}")
-                            else:
-                                st.caption(f"First air: {item.get('first_air_date')}")
-
-                        # Trailer embed
-                        with cols[2]:
-                            trailer = item.get("trailer_url")
-                            if trailer:
-                                st.video(trailer)
-                            else:
-                                st.write("No trailer found")
-    except Exception as e:
-        st.error(f"Connection error: {e}")
-
+        with cols[2]:
+            trailer = item.get("trailer_url")
+            if trailer:
+                st.video(trailer)
+            else:
+                st.write("No trailer")
