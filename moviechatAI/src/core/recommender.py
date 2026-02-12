@@ -15,7 +15,6 @@ from .providers import (
     tmdb_get_trailer_url,
     tmdb_poster_url,
     tmdb_backdrop_url,
-    tmdb_upcoming_movies,
     watchmode_search,
     watchmode_sources,
 )
@@ -23,12 +22,10 @@ from .providers import (
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 DEFAULT_REGION = os.getenv("DEFAULT_REGION", "US")
 
-# ---- Performance knobs ----
 AVAILABILITY_LOOKUPS_PER_REQUEST = 5
-TRAILER_LOOKUPS_PER_REQUEST = 6
-WATCHMODE_SLEEP_BETWEEN_CALLS = 0.15
+TRAILER_LOOKUPS_PER_REQUEST = 4
+WATCHMODE_SLEEP_BETWEEN_CALLS = 0.10
 
-# caches
 _WATCHMODE_ID_CACHE: Dict[str, Optional[int]] = {}
 _WATCHMODE_SOURCES_CACHE: Dict[Tuple[str, str], List[Dict]] = {}
 _TRAILER_CACHE: Dict[Tuple[int, str], Optional[str]] = {}
@@ -36,11 +33,11 @@ _TRAILER_CACHE: Dict[Tuple[int, str], Optional[str]] = {}
 
 def _normalize_content_type(ct: str) -> str:
     ct = (ct or "").strip().lower()
-    if ct in ("movies", "movie"):
+    if ct in ("movie", "movies"):
         return "movie"
     if ct in ("series", "tv", "show", "shows"):
         return "series"
-    return ct
+    return ct or "movie"
 
 
 def _rating(item: Dict) -> float:
@@ -91,21 +88,13 @@ def _watchmode_sources_cached(title: str, region: str) -> List[Dict]:
 
 
 def _availability_text(title: str, region: str) -> str:
-    """
-    Returns a readable availability string like:
-    'Netflix, Amazon Prime, Hulu'
-    or '' if unknown.
-    """
     sources = _watchmode_sources_cached(title, region)
     names = []
     for s in sources:
         nm = s.get("name") or s.get("source")
         if nm:
             names.append(nm)
-    # de-dupe keep order
-    names = list(dict.fromkeys(names))
-    # Keep a short list
-    names = names[:6]
+    names = list(dict.fromkeys(names))[:6]
     return ", ".join(names)
 
 
@@ -121,26 +110,19 @@ def _trailer_cached(tmdb_id: int, media_type: str) -> Optional[str]:
     return url
 
 
-def _genre_overlap(item: Dict, intent_genres: List[int]) -> float:
-    item_genres = item.get("genre_ids") or []
-    if not intent_genres:
-        return 0.35
-    return len(set(item_genres).intersection(set(intent_genres))) / max(len(set(intent_genres)), 1)
-
-
 def _score_100(item: Dict, intent_genres: List[int], intent_lang: Optional[str], similar_bonus: float = 0.0) -> int:
-    """
-    Score out of 100.
-    """
-    rating = _rating(item)          # 0..10
-    pop = _popularity(item)         # varies a lot
-    overlap = _genre_overlap(item, intent_genres)  # 0..1
-    lang_match = 1.0 if (intent_lang and item.get("original_language") == intent_lang) else 0.0
+    rating = _rating(item)  # 0..10
+    pop = _popularity(item)  # 0..big
 
-    # Normalize popularity roughly into 0..1
+    item_genres = item.get("genre_ids") or []
+    if intent_genres:
+        overlap = len(set(item_genres).intersection(set(intent_genres))) / max(len(set(intent_genres)), 1)
+    else:
+        overlap = 0.35
+
+    lang_match = 1.0 if (intent_lang and item.get("original_language") == intent_lang) else 0.0
     pop_norm = min(pop / 200.0, 1.0)
 
-    # Weighted components -> 0..1
     base = (
         0.50 * (rating / 10.0) +
         0.25 * overlap +
@@ -148,9 +130,7 @@ def _score_100(item: Dict, intent_genres: List[int], intent_lang: Optional[str],
         0.05 * lang_match
     )
 
-    # Similar bonus used when item comes from "similar to X"
     base = min(base + similar_bonus, 1.0)
-
     return int(round(base * 100))
 
 
@@ -158,86 +138,100 @@ def recommend_ai(
     user_text: str,
     content_type: Optional[str] = None,
     language: Optional[str] = None,
-    limit: int = 10,
-) -> List[Dict]:
+    page: int = 1,
+    page_size: int = 10,
+) -> Dict:
+    """
+    Returns:
+      { "items": [...], "page": page, "page_size": page_size, "intent": {...} }
+    """
     intent = parse_intent(user_text)
 
     ct = _normalize_content_type(content_type or intent.content_type or "movie")
     lang = (language or intent.language or None)
-    lim = intent.limit or limit
+
+    # year filters from intent
+    year_from = intent.year_from
+    year_to = intent.year_to
+
+    # This page maps to TMDB page (simple + predictable)
+    tmdb_page = max(int(page), 1)
+
     genre_ids = intent.genres or []
 
-    # 1) Discover
-    candidates: List[Dict] = []
-    for page in (1, 2, 3, 4, 5):
-        if ct == "movie":
-            candidates += tmdb_discover_movie(genres=genre_ids or None, page=page, language=lang).get("results", [])
-        else:
-            candidates += tmdb_discover_tv(genres=genre_ids or None, page=page, language=lang).get("results", [])
+    # candidates from discover
+    if ct == "movie":
+        candidates = tmdb_discover_movie(
+            genres=genre_ids or None,
+            page=tmdb_page,
+            language=lang,
+            year_from=year_from,
+            year_to=year_to,
+        ).get("results", [])
+        media_type = "movie"
+    else:
+        candidates = tmdb_discover_tv(
+            genres=genre_ids or None,
+            page=tmdb_page,
+            language=lang,
+            year_from=year_from,
+            year_to=year_to,
+        ).get("results", [])
+        media_type = "tv"
 
-    # 2) Fallback search
+    # fallback search if discover page empty
     if not candidates and user_text.strip():
         if ct == "movie":
-            candidates = tmdb_search_movie(user_text.strip(), page=1).get("results", [])
+            candidates = tmdb_search_movie(user_text.strip(), page=tmdb_page).get("results", [])
         else:
-            candidates = tmdb_search_tv(user_text.strip(), page=1).get("results", [])
+            candidates = tmdb_search_tv(user_text.strip(), page=tmdb_page).get("results", [])
         if lang:
             candidates = [c for c in candidates if c.get("original_language") == lang]
 
-    # 3) Similar expansion
+    # Similar expansion (only affects scoring + diversity)
     similar_ids = set()
     if intent.seed_title:
         if ct == "movie":
             seed_results = tmdb_search_movie(intent.seed_title, page=1).get("results", [])
             seed_id = seed_results[0].get("id") if seed_results else None
-            media_type = "movie"
         else:
             seed_results = tmdb_search_tv(intent.seed_title, page=1).get("results", [])
             seed_id = seed_results[0].get("id") if seed_results else None
-            media_type = "tv"
 
         if seed_id:
-            sim = []
-            for page in (1, 2):
-                sim += tmdb_similar(seed_id, media_type, page=page).get("results", [])
-            if lang:
-                sim = [c for c in sim if c.get("original_language") == lang]
+            sim = tmdb_similar(seed_id, media_type, page=tmdb_page).get("results", [])
             for s in sim:
                 if s.get("id"):
                     similar_ids.add(s["id"])
-            candidates = sim + candidates
+            # merge similar first
+            merged = []
+            seen = set()
+            for x in sim + candidates:
+                if not x.get("id") or x["id"] in seen:
+                    continue
+                seen.add(x["id"])
+                merged.append(x)
+            candidates = merged
 
-    # 4) Dedup
-    seen = set()
-    deduped = []
-    for c in candidates:
-        cid = c.get("id")
-        if not cid or cid in seen:
-            continue
-        seen.add(cid)
-        deduped.append(c)
-
-    # 5) Score + enrich (availability + trailer limited)
-    scored: List[Tuple[int, Dict]] = []
+    # Build page results
+    items: List[Dict] = []
     trailer_calls = 0
     avail_calls = 0
 
-    for c in deduped[: max(lim * 8, 80)]:
-        title = c.get("title") if ct == "movie" else c.get("name")
-        if not title:
-            continue
-
+    for c in candidates:
         tmdb_id = c.get("id")
         if not tmdb_id:
             continue
 
-        # trailer limited
+        title = c.get("title") if ct == "movie" else c.get("name")
+        if not title:
+            continue
+
         trailer = None
         if trailer_calls < TRAILER_LOOKUPS_PER_REQUEST:
-            trailer = _trailer_cached(tmdb_id, "movie" if ct == "movie" else "tv")
+            trailer = _trailer_cached(tmdb_id, media_type)
             trailer_calls += 1
 
-        # availability limited (safe)
         availability = ""
         if avail_calls < AVAILABILITY_LOOKUPS_PER_REQUEST:
             availability = _availability_text(title, DEFAULT_REGION)
@@ -245,9 +239,9 @@ def recommend_ai(
             time.sleep(WATCHMODE_SLEEP_BETWEEN_CALLS)
 
         similar_bonus = 0.06 if tmdb_id in similar_ids else 0.0
-        score = _score_100(c, genre_ids, lang, similar_bonus=similar_bonus)
+        score = _score_100(c, genre_ids, lang, similar_bonus)
 
-        payload = {
+        items.append({
             "type": "movie" if ct == "movie" else "series",
             "title": title,
             "overview": c.get("overview"),
@@ -260,35 +254,26 @@ def recommend_ai(
             "poster_url": tmdb_poster_url(c.get("poster_path"), size="w500"),
             "backdrop_url": tmdb_backdrop_url(c.get("backdrop_path"), size="w780"),
             "trailer_url": trailer,
-            "available_on": availability,          # ✅ text line
-            "score": score,                        # ✅ out of 100
-            "intent": {
-                "content_type": ct,
-                "language": lang,
-                "genres": genre_ids,
-                "seed_title": intent.seed_title,
-            },
-        }
-
-        scored.append((score, payload))
-
-    scored.sort(key=lambda x: x[0], reverse=True)
-    return [p for _, p in scored[:lim]]
-
-
-def upcoming(limit: int = 10) -> List[Dict]:
-    data = tmdb_upcoming_movies(page=1)
-    results = data.get("results", [])[:limit]
-    out = []
-    for x in results:
-        tmdb_id = x.get("id")
-        out.append({
-            "type": "upcoming_movie",
-            "title": x.get("title"),
-            "release_date": x.get("release_date"),
-            "tmdb_id": tmdb_id,
-            "poster_url": tmdb_poster_url(x.get("poster_path"), size="w500"),
-            "backdrop_url": tmdb_backdrop_url(x.get("backdrop_path"), size="w780"),
-            "trailer_url": _trailer_cached(tmdb_id, "movie") if tmdb_id else None,
+            "available_on": availability,
+            "score": score,
         })
-    return out
+
+        if len(items) >= page_size:
+            break
+
+    # Sort this page’s items by score
+    items.sort(key=lambda x: x.get("score", 0), reverse=True)
+
+    return {
+        "items": items,
+        "page": tmdb_page,
+        "page_size": page_size,
+        "intent": {
+            "content_type": ct,
+            "language": lang,
+            "genres": genre_ids,
+            "seed_title": intent.seed_title,
+            "year_from": year_from,
+            "year_to": year_to,
+        }
+    }
