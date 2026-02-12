@@ -1,7 +1,7 @@
 import requests
 import streamlit as st
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = "https://moviechatai-backend.onrender.com"
 
 st.set_page_config(page_title="MovieChat AI", page_icon="🎬", layout="wide")
 st.title("🎬 MovieChat AI")
@@ -78,3 +78,4 @@ if st.button("Get AI recommendations"):
                                 st.write("No trailer found")
     except Exception as e:
         st.error(f"Connection error: {e}")
+
