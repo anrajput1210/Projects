@@ -1,7 +1,15 @@
+from .gemini_intent import gemini_parse_intent
+from .providers import (
+    tmdb_search_multi,
+    tmdb_search_person,
+    tmdb_person_credits,
+    tmdb_search_keyword,
+)
 import os
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+
 
 from dotenv import load_dotenv
 
@@ -133,6 +141,22 @@ def _score_100(item: Dict, intent_genres: List[int], intent_lang: Optional[str],
     base = min(base + similar_bonus, 1.0)
     return int(round(base * 100))
 
+def _looks_like_person_query(text: str) -> bool:
+    t = (text or "").lower()
+    return (" movies" in t or " films" in t or " film" in t or " movies" in t) and (
+        "actor" in t or "director" in t or "starring" in t or "by " in t or len(t.split()) <= 4
+    )
+
+def _dedupe_by_id(items: List[Dict]) -> List[Dict]:
+    seen = set()
+    out = []
+    for x in items:
+        xid = x.get("id")
+        if not xid or xid in seen:
+            continue
+        seen.add(xid)
+        out.append(x)
+    return out
 
 def recommend_ai(
     user_text: str,
@@ -141,79 +165,158 @@ def recommend_ai(
     page: int = 1,
     page_size: int = 10,
 ) -> Dict:
-    """
-    Returns:
-      { "items": [...], "page": page, "page_size": page_size, "intent": {...} }
-    """
-    intent = parse_intent(user_text)
+    # 1) Gemini intent (fallback to heuristic if None)
+    g = gemini_parse_intent(user_text) or {}
 
-    ct = _normalize_content_type(content_type or intent.content_type or "movie")
-    lang = (language or intent.language or None)
+    # choose content type: explicit override > gemini > heuristic > default
+    h = parse_intent(user_text)
+    ct_raw = content_type or g.get("content_type") or h.content_type or "unknown"
+    ct = _normalize_content_type(ct_raw if ct_raw != "unknown" else "movie")
 
-    # year filters from intent
-    year_from = intent.year_from
-    year_to = intent.year_to
+    lang = language or g.get("language") or h.language or None
+    year_from = g.get("year_from") or h.year_from
+    year_to = g.get("year_to") or h.year_to
 
-    # This page maps to TMDB page (simple + predictable)
+    # genres: Gemini gives words -> ids via your ai_intent TMDB_GENRES mapping
+    from .ai_intent import TMDB_GENRES as GMAP
+    genre_ids = []
+    for w in (g.get("genres") or []):
+        w = (w or "").strip().lower()
+        if w in GMAP:
+            genre_ids.append(GMAP[w])
+    if not genre_ids:
+        genre_ids = h.genres or []
+    genre_ids = list(dict.fromkeys(genre_ids))
+
+    title_query = g.get("title_query") or h.seed_title  # treat "like X" same as title_query
+    person_name = g.get("person_name")
+    person_role = g.get("person_role")  # actor/director/writer
+    keyword_terms = (g.get("keywords") or [])
+
     tmdb_page = max(int(page), 1)
 
-    genre_ids = intent.genres or []
+    candidates: List[Dict] = []
+    media_type = "movie" if ct == "movie" else "tv"
 
-    # candidates from discover
-    if ct == "movie":
-        candidates = tmdb_discover_movie(
-            genres=genre_ids or None,
-            page=tmdb_page,
-            language=lang,
-            year_from=year_from,
-            year_to=year_to,
-        ).get("results", [])
-        media_type = "movie"
-    else:
-        candidates = tmdb_discover_tv(
-            genres=genre_ids or None,
-            page=tmdb_page,
-            language=lang,
-            year_from=year_from,
-            year_to=year_to,
-        ).get("results", [])
-        media_type = "tv"
+    # 2) PERSON ROUTE: "tom cruise movies" / "nolan films"
+    if person_name or _looks_like_person_query(user_text):
+        name = person_name or user_text.replace("movies", "").replace("films", "").strip()
+        pr = tmdb_search_person(name, page=1).get("results", [])
+        if pr:
+            pid = pr[0].get("id")
+            credits = tmdb_person_credits(pid)
+            cast = credits.get("cast", [])
+            crew = credits.get("crew", [])
 
-    # fallback search if discover page empty
+            if person_role == "director":
+                pool = [x for x in crew if x.get("job") == "Director"]
+            elif person_role == "writer":
+                pool = [x for x in crew if x.get("job") in ("Writer", "Screenplay", "Story")]
+            else:
+                pool = cast  # actor default
+
+            # filter by movie vs series
+            if ct == "movie":
+                pool = [x for x in pool if x.get("media_type") == "movie"]
+            else:
+                pool = [x for x in pool if x.get("media_type") == "tv"]
+
+            if lang:
+                pool = [x for x in pool if x.get("original_language") == lang]
+
+            # score by popularity + vote_average
+            pool.sort(key=lambda x: ((x.get("vote_average") or 0) * 10 + (x.get("popularity") or 0)), reverse=True)
+            candidates = pool
+
+    # 3) TITLE ROUTE: "game of thrones" should match TV title and use similar
+    if not candidates and title_query:
+        m = tmdb_search_multi(title_query, page=1).get("results", [])
+        # choose best match that fits ct if possible
+        best = None
+        for r in m:
+            if r.get("media_type") in ("movie", "tv"):
+                if ct == "movie" and r.get("media_type") == "movie":
+                    best = r; break
+                if ct == "series" and r.get("media_type") == "tv":
+                    best = r; break
+        if not best and m:
+            best = m[0]
+
+        if best and best.get("id") and best.get("media_type") in ("movie", "tv"):
+            seed_media = best["media_type"]
+            seed_id = best["id"]
+            media_type = seed_media
+            # similar results are the closest match (fixes "way off")
+            sim = tmdb_similar(seed_id, seed_media, page=tmdb_page).get("results", [])
+            candidates = sim
+
+            # If user asked the title itself (not “like”), include it first
+            candidates = [best] + candidates
+
+    # 4) KEYWORD ROUTE: "heist" -> TMDB keywords -> discover with_keywords
+    if not candidates and keyword_terms:
+        # resolve first keyword term to TMDB keyword id
+        kw_ids = []
+        for term in keyword_terms[:2]:
+            kw = tmdb_search_keyword(term, page=1).get("results", [])
+            if kw:
+                kw_ids.append(kw[0].get("id"))
+        kw_ids = [k for k in kw_ids if k]
+
+        if ct == "movie":
+            candidates = tmdb_discover_movie(
+                genres=genre_ids or None,
+                page=tmdb_page,
+                language=lang,
+                year_from=year_from,
+                year_to=year_to,
+                with_keywords=kw_ids or None,
+            ).get("results", [])
+            media_type = "movie"
+        else:
+            candidates = tmdb_discover_tv(
+                genres=genre_ids or None,
+                page=tmdb_page,
+                language=lang,
+                year_from=year_from,
+                year_to=year_to,
+                with_keywords=kw_ids or None,
+            ).get("results", [])
+            media_type = "tv"
+
+    # 5) DEFAULT ROUTE: discover with filters (genres/lang/year)
+    if not candidates:
+        if ct == "movie":
+            candidates = tmdb_discover_movie(
+                genres=genre_ids or None,
+                page=tmdb_page,
+                language=lang,
+                year_from=year_from,
+                year_to=year_to,
+            ).get("results", [])
+            media_type = "movie"
+        else:
+            candidates = tmdb_discover_tv(
+                genres=genre_ids or None,
+                page=tmdb_page,
+                language=lang,
+                year_from=year_from,
+                year_to=year_to,
+            ).get("results", [])
+            media_type = "tv"
+
+    # 6) Fallback search: ALWAYS return something close
     if not candidates and user_text.strip():
         if ct == "movie":
             candidates = tmdb_search_movie(user_text.strip(), page=tmdb_page).get("results", [])
+            media_type = "movie"
         else:
             candidates = tmdb_search_tv(user_text.strip(), page=tmdb_page).get("results", [])
-        if lang:
-            candidates = [c for c in candidates if c.get("original_language") == lang]
+            media_type = "tv"
 
-    # Similar expansion (only affects scoring + diversity)
-    similar_ids = set()
-    if intent.seed_title:
-        if ct == "movie":
-            seed_results = tmdb_search_movie(intent.seed_title, page=1).get("results", [])
-            seed_id = seed_results[0].get("id") if seed_results else None
-        else:
-            seed_results = tmdb_search_tv(intent.seed_title, page=1).get("results", [])
-            seed_id = seed_results[0].get("id") if seed_results else None
+    candidates = _dedupe_by_id(candidates)
 
-        if seed_id:
-            sim = tmdb_similar(seed_id, media_type, page=tmdb_page).get("results", [])
-            for s in sim:
-                if s.get("id"):
-                    similar_ids.add(s["id"])
-            # merge similar first
-            merged = []
-            seen = set()
-            for x in sim + candidates:
-                if not x.get("id") or x["id"] in seen:
-                    continue
-                seen.add(x["id"])
-                merged.append(x)
-            candidates = merged
-
-    # Build page results
+    # 7) Build page results (your existing scoring/trailer/availability)
     items: List[Dict] = []
     trailer_calls = 0
     avail_calls = 0
@@ -223,7 +326,7 @@ def recommend_ai(
         if not tmdb_id:
             continue
 
-        title = c.get("title") if ct == "movie" else c.get("name")
+        title = c.get("title") if media_type == "movie" else c.get("name")
         if not title:
             continue
 
@@ -238,11 +341,11 @@ def recommend_ai(
             avail_calls += 1
             time.sleep(WATCHMODE_SLEEP_BETWEEN_CALLS)
 
-        similar_bonus = 0.06 if tmdb_id in similar_ids else 0.0
-        score = _score_100(c, genre_ids, lang, similar_bonus)
+        # use your score function (genre_ids/lang) — similar is already handled by routing
+        score = _score_100(c, genre_ids, lang, similar_bonus=0.06 if title_query else 0.0)
 
         items.append({
-            "type": "movie" if ct == "movie" else "series",
+            "type": "movie" if media_type == "movie" else "series",
             "title": title,
             "overview": c.get("overview"),
             "rating": c.get("vote_average"),
@@ -261,7 +364,6 @@ def recommend_ai(
         if len(items) >= page_size:
             break
 
-    # Sort this page’s items by score
     items.sort(key=lambda x: x.get("score", 0), reverse=True)
 
     return {
@@ -269,11 +371,15 @@ def recommend_ai(
         "page": tmdb_page,
         "page_size": page_size,
         "intent": {
-            "content_type": ct,
+            "content_type": "movie" if media_type == "movie" else "series",
             "language": lang,
             "genres": genre_ids,
-            "seed_title": intent.seed_title,
             "year_from": year_from,
             "year_to": year_to,
-        }
+            "title_query": title_query,
+            "person_name": person_name,
+            "person_role": person_role,
+            "keywords": keyword_terms,
+            "phase3_gemini_enabled": bool(g),
+        },
     }
