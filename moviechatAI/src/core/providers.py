@@ -155,3 +155,31 @@ def watchmode_sources(title_id: int, region: str = "US") -> List[Dict[str, Any]]
     r = requests.get(f"{WATCHMODE_BASE}/title/{title_id}/sources/", params=params, timeout=30)
     r.raise_for_status()
     return r.json()
+
+def tmdb_search_multi(query: str, page: int = 1) -> Dict[str, Any]:
+    params = {"api_key": _tmdb_key(), "query": query, "page": page, "include_adult": "false"}
+    r = requests.get(f"{TMDB_BASE}/search/multi", params=params, timeout=30)
+    r.raise_for_status()
+    return r.json()
+
+
+def tmdb_search_person(query: str, page: int = 1) -> Dict[str, Any]:
+    params = {"api_key": _tmdb_key(), "query": query, "page": page, "include_adult": "false"}
+    r = requests.get(f"{TMDB_BASE}/search/person", params=params, timeout=30)
+    r.raise_for_status()
+    return r.json()
+
+
+def tmdb_person_credits(person_id: int) -> Dict[str, Any]:
+    params = {"api_key": _tmdb_key()}
+    r = requests.get(f"{TMDB_BASE}/person/{person_id}/combined_credits", params=params, timeout=30)
+    r.raise_for_status()
+    return r.json()
+
+
+def tmdb_search_keyword(query: str, page: int = 1) -> Dict[str, Any]:
+    params = {"api_key": _tmdb_key(), "query": query, "page": page}
+    r = requests.get(f"{TMDB_BASE}/search/keyword", params=params, timeout=30)
+    r.raise_for_status()
+    return r.json()
+
