@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MovieChat — film &amp; series discovery</title>
+<style>
+/* ============================================================
+   TOKENS — film exhibition: tungsten bulb, projector ember,
+   archival stock. Light is the default; dark is opt-in.
+   ============================================================ */
+:root{
+  --ground:#F6F6F3; --ground-2:#EFEFEB;
+  --surface:#FFFFFF; --surface-2:#ECEDE8; --elevated:#FFFFFF;
+  --rule:rgba(16,18,22,.10); --rule-firm:rgba(16,18,22,.22);
+  --ink:#14171B; --ink-dim:#5C646F;
+  --accent:#A3630C; --ember:#A8431F;
+  --accent-soft:rgba(163,99,12,.10);
+  --glow:rgba(163,99,12,.22);
+  --tier-high:#2C6E4C; --tier-mid:#87611E; --tier-low:#963C30;
+  --grain:.018;
+  --lift:0 1px 2px rgba(16,18,22,.05), 0 8px 26px rgba(16,18,22,.09);
+  --lift-hi:0 2px 8px rgba(16,18,22,.09), 0 22px 48px rgba(16,18,22,.16);
+  --skeleton:linear-gradient(90deg,var(--surface-2) 25%,var(--ground-2) 37%,var(--surface-2) 63%);
+
+  --font-display:Georgia,"Iowan Old Style","Palatino Linotype","Book Antiqua",serif;
+  --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,"Liberation Mono",monospace;
+}
+html[data-theme="dark"]{
+  --ground:#08090C; --ground-2:#0C0E13;
+  --surface:#101319; --surface-2:#171B23; --elevated:#1B2029;
+  --rule:rgba(242,240,235,.10); --rule-firm:rgba(242,240,235,.24);
+  --ink:#F2F0EB; --ink-dim:#98A1AE;
+  --accent:#F0A93B; --ember:#D9603C;
+  --accent-soft:rgba(240,169,59,.14); --glow:rgba(240,169,59,.30);
+  --tier-high:#5CBA8A; --tier-mid:#DCA855; --tier-low:#CC6B5C;
+  --grain:.038;
+  --lift:0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.5);
+  --lift-hi:0 2px 8px rgba(0,0,0,.6), 0 26px 60px rgba(0,0,0,.66);
+  --skeleton:linear-gradient(90deg,var(--surface-2) 25%,var(--elevated) 37%,var(--surface-2) 63%);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--font-sans); font-size:clamp(.86rem,.82rem+.16vw,.95rem);
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:99; opacity:var(--grain);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
+img{max-width:100%; display:block}
+
+.eyebrow{font-family:var(--font-mono); font-size:.63rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--ink-dim); margin:0}
+
+/* ================= MASTHEAD ================= */
+.masthead{
+  position:sticky; top:0; z-index:40; display:flex; align-items:center; gap:1rem;
+  padding:.85rem clamp(1rem,4vw,3rem); border-bottom:1px solid var(--rule);
+  background:color-mix(in srgb,var(--ground) 82%,transparent); backdrop-filter:blur(14px) saturate(1.3);
+}
+.wordmark{font-family:var(--font-display); font-size:1.15rem; font-weight:700;
+  letter-spacing:-.015em; display:flex; align-items:center; gap:.55rem}
+.cue{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--accent);position:relative;flex:none}
+.cue::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--glow)}
+.spacer{margin-left:auto}
+.ghost{font:inherit; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.12em;
+  text-transform:uppercase; background:none; border:1px solid var(--rule-firm); color:var(--ink-dim);
+  padding:.34rem .7rem; border-radius:100px; cursor:pointer;
+  transition:color .15s ease,border-color .15s ease}
+.ghost:hover{color:var(--ink); border-color:var(--ink-dim)}
+
+/* ================= MARQUEE ================= */
+.marquee{position:relative; overflow:hidden;
+  padding:clamp(2.2rem,5.5vw,4.2rem) clamp(1rem,4vw,3rem) clamp(1.5rem,3vw,2.2rem);
+  border-bottom:1px solid var(--rule)}
+.marquee::before{
+  content:""; position:absolute; inset:-40% -10% auto -10%; height:150%; pointer-events:none;
+  background:
+    radial-gradient(52% 60% at 18% 0%, color-mix(in srgb,var(--accent) 24%,transparent), transparent 68%),
+    radial-gradient(46% 56% at 74% 6%, color-mix(in srgb,var(--ember) 20%,transparent), transparent 66%);
+  filter:blur(22px);
+}
+.marquee-inner{position:relative; max-width:1500px; margin:0 auto}
+.marquee h1{font-family:var(--font-display); font-weight:700;
+  font-size:clamp(1.9rem,1.25rem+3vw,3.4rem); line-height:1.03; letter-spacing:-.028em;
+  margin:.7rem 0 .5rem; max-width:17ch; text-wrap:balance}
+.marquee h1 em{font-style:normal; background:linear-gradient(120deg,var(--accent),var(--ember));
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.lede{color:var(--ink-dim); max-width:56ch; margin:0 0 1.4rem; font-size:1rem}
+
+.askbar{display:flex; gap:.5rem; max-width:760px; align-items:center;
+  background:var(--surface); border:1px solid var(--rule-firm); border-radius:100px;
+  padding:.4rem .4rem .4rem 1.15rem; box-shadow:var(--lift);
+  transition:border-color .16s ease, box-shadow .16s ease}
+.askbar:focus-within{border-color:var(--accent); box-shadow:var(--lift),0 0 0 4px var(--accent-soft)}
+.askbar input{flex:1; min-width:0; font:inherit; font-size:1rem; font-family:var(--font-display);
+  background:none; border:none; color:var(--ink); padding:.55rem 0}
+.askbar input::placeholder{color:var(--ink-dim)}
+.askbar input:focus{outline:none}
+.go{font:inherit; font-family:var(--font-mono); font-size:.7rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; border:none; border-radius:100px; cursor:pointer;
+  padding:.7rem 1.4rem; color:#fff; background:linear-gradient(120deg,var(--accent),var(--ember));
+  box-shadow:0 4px 16px var(--glow); transition:transform .14s ease, box-shadow .14s ease}
+.go:hover{transform:translateY(-1px); box-shadow:0 8px 24px var(--glow)}
+.go[disabled]{opacity:.55; cursor:progress; transform:none}
+
+.examples{display:flex; flex-wrap:wrap; gap:.4rem; margin-top:1rem}
+.example{font:inherit; font-family:var(--font-mono); font-size:.68rem; color:var(--ink-dim);
+  background:color-mix(in srgb,var(--surface) 60%,transparent); border:1px solid var(--rule);
+  border-radius:100px; padding:.36rem .78rem; cursor:pointer;
+  transition:color .15s ease,border-color .15s ease,background .15s ease}
+.example:hover{color:var(--accent); border-color:var(--accent); background:var(--accent-soft)}
+
+/* ================= TOOLBAR ================= */
+.toolbar{position:sticky; top:3.05rem; z-index:30; display:flex; align-items:center;
+  gap:1.3rem; flex-wrap:wrap; padding:.7rem clamp(1rem,4vw,3rem);
+  border-bottom:1px solid var(--rule);
+  background:color-mix(in srgb,var(--ground) 88%,transparent); backdrop-filter:blur(14px)}
+.tool{display:flex; align-items:center; gap:.5rem}
+.tool>label{font-family:var(--font-mono); font-size:.62rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-dim); white-space:nowrap}
+.select{font:inherit; font-family:var(--font-mono); font-size:.74rem; background:var(--surface);
+  color:var(--ink); border:1px solid var(--rule-firm); border-radius:100px;
+  padding:.4rem .8rem; cursor:pointer}
+.select:focus{border-color:var(--accent); outline:none}
+.segments{display:flex; background:var(--surface); border:1px solid var(--rule-firm);
+  border-radius:100px; padding:2px; gap:2px}
+.segment{font:inherit; font-family:var(--font-mono); font-size:.72rem;
+  font-variant-numeric:tabular-nums; min-width:2.3rem; background:none; color:var(--ink-dim);
+  border:none; border-radius:100px; padding:.3rem .1rem; cursor:pointer;
+  transition:background .15s ease,color .15s ease}
+.segment:hover{color:var(--ink)}
+.segment[aria-pressed="true"]{background:linear-gradient(120deg,var(--accent),var(--ember));
+  color:#fff; font-weight:700}
+.toolbar .count{margin-left:auto; font-family:var(--font-mono); font-size:.68rem;
+  color:var(--ink-dim); letter-spacing:.1em; font-variant-numeric:tabular-nums}
+
+/* ================= PAGE ================= */
+.page{max-width:1500px; margin:0 auto; padding:1.6rem clamp(1rem,4vw,3rem) 4rem}
+.tags{display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; margin-bottom:2rem; min-height:1.6rem}
+.tag{font-family:var(--font-mono); font-size:.68rem; border:1px solid var(--rule-firm);
+  border-radius:100px; padding:.24rem .62rem; color:var(--ink);
+  display:inline-flex; align-items:center; gap:.4rem}
+.tag b{font-weight:400; color:var(--ink-dim); text-transform:uppercase; font-size:.57rem; letter-spacing:.1em}
+.tag--sort{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 50%,transparent); background:var(--accent-soft)}
+.tag--exclude_genre{color:var(--tier-low); border-color:color-mix(in srgb,var(--tier-low) 45%,transparent)}
+.tag--exclude_genre s{text-decoration-thickness:1px}
+
+.sec-head{display:flex; align-items:baseline; gap:.9rem; margin:0 0 1.1rem}
+.sec-head h2{font-family:var(--font-display); font-size:1.15rem; margin:0; letter-spacing:-.01em}
+.sec-head .line{flex:1; height:1px; background:var(--rule)}
+
+.notice{border:1px solid var(--rule-firm); border-left:3px solid var(--tier-low);
+  background:var(--surface); border-radius:8px; padding:.9rem 1.1rem; margin-bottom:1.5rem}
+.notice h3{margin:0 0 .25rem; font-size:.92rem; font-family:var(--font-sans)}
+.notice p{margin:0; color:var(--ink-dim); font-size:.86rem}
+.empty{text-align:center; padding:3.5rem 1rem; color:var(--ink-dim);
+  border:1px dashed var(--rule-firm); border-radius:12px}
+.empty strong{display:block; color:var(--ink); font-family:var(--font-display);
+  font-size:1.15rem; margin-bottom:.3rem}
+
+/* ================= FEATURE ================= */
+.feature{display:grid; grid-template-columns:minmax(0,210px) minmax(0,1fr);
+  gap:clamp(1.2rem,3vw,2.4rem); background:var(--elevated); border:1px solid var(--rule);
+  border-radius:14px; padding:clamp(1.1rem,2.4vw,1.8rem); box-shadow:var(--lift);
+  margin-bottom:2.6rem; position:relative; overflow:hidden}
+.feature::before{content:""; position:absolute; inset:0 0 auto 0; height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--ember),transparent)}
+@media (max-width:680px){.feature{grid-template-columns:minmax(0,130px) minmax(0,1fr)}}
+
+.poster{aspect-ratio:2/3; border-radius:8px; position:relative; overflow:hidden;
+  display:flex; align-items:flex-end; padding:.6rem; box-shadow:var(--lift);
+  border:1px solid var(--rule); background:var(--surface-2)}
+.poster img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.poster .fallback{position:relative; font-family:var(--font-display); font-size:.72rem;
+  line-height:1.22; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.poster .score-badge{position:absolute; top:.5rem; right:.5rem; z-index:2;
+  font-family:var(--font-mono); font-size:.62rem; font-weight:700; font-variant-numeric:tabular-nums;
+  background:rgba(8,9,12,.74); backdrop-filter:blur(6px); color:#fff;
+  border:1px solid rgba(255,255,255,.18); padding:.16rem .42rem; border-radius:100px}
+
+.feature .body{display:flex; flex-direction:column; gap:.7rem; min-width:0}
+.flag{align-self:flex-start; font-family:var(--font-mono); font-size:.58rem; letter-spacing:.14em;
+  text-transform:uppercase; font-weight:700; color:#fff;
+  background:linear-gradient(120deg,var(--accent),var(--ember)); padding:.2rem .55rem; border-radius:100px}
+.feature h3{font-family:var(--font-display); font-size:clamp(1.45rem,1.1rem+1.4vw,2.1rem);
+  line-height:1.06; letter-spacing:-.022em; margin:0; text-wrap:balance}
+.synopsis{margin:0; color:var(--ink-dim); max-width:62ch; font-size:.94rem}
+.specs{display:flex; flex-wrap:wrap; gap:.35rem .9rem; font-family:var(--font-mono);
+  font-size:.71rem; color:var(--ink-dim); font-variant-numeric:tabular-nums}
+.specs b{font-weight:700; color:var(--ink)}
+.specs .dot{opacity:.4}
+.where{font-size:.82rem; color:var(--ink-dim)}
+.where b{color:var(--ink); font-weight:600}
+
+.meter{display:flex; align-items:center; gap:.7rem; max-width:380px}
+.meter-track{flex:1; height:4px; background:var(--surface-2); border-radius:100px; overflow:hidden}
+.meter-fill{height:100%; border-radius:100px; background:var(--tier-mid);
+  transition:width .5s cubic-bezier(.22,1,.36,1)}
+.meter-fill[data-tier="high"]{background:linear-gradient(90deg,var(--tier-high),color-mix(in srgb,var(--tier-high) 55%,var(--accent)))}
+.meter-fill[data-tier="low"]{background:var(--tier-low)}
+.meter-num{font-family:var(--font-mono); font-size:.68rem; color:var(--ink-dim);
+  font-variant-numeric:tabular-nums; letter-spacing:.05em}
+
+.actions{display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.2rem}
+.btn{font:inherit; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.11em;
+  text-transform:uppercase; padding:.52rem .95rem; border-radius:100px; cursor:pointer;
+  border:1px solid var(--rule-firm); background:transparent; color:var(--ink);
+  transition:background .15s ease,border-color .15s ease,transform .15s ease}
+.btn:hover{border-color:var(--ink-dim); background:var(--surface-2); transform:translateY(-1px)}
+.btn--solid{border-color:transparent; color:#fff;
+  background:linear-gradient(120deg,var(--accent),var(--ember)); box-shadow:0 3px 14px var(--glow)}
+.btn--solid:hover{filter:brightness(1.07)}
+
+/* ================= GRID ================= */
+.grid{list-style:none; margin:0; padding:0; display:grid; gap:clamp(1rem,1.8vw,1.5rem);
+  grid-template-columns:repeat(auto-fill,minmax(158px,1fr))}
+.card{display:flex; flex-direction:column; gap:.55rem; cursor:pointer;
+  animation:rise .5s cubic-bezier(.22,1,.36,1) both; border:none; background:none;
+  padding:0; text-align:left; color:inherit; font:inherit}
+@keyframes rise{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+.card .poster{transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease}
+.card:hover .poster{transform:translateY(-7px) scale(1.014); box-shadow:var(--lift-hi)}
+.card:hover .card-title{color:var(--accent)}
+.card .poster::after{content:""; position:absolute; top:7px; left:7px; z-index:2;
+  width:9px; height:9px; border-radius:50%; border:1.5px solid rgba(255,255,255,.9);
+  opacity:0; transition:opacity .2s ease}
+.card:hover .poster::after{opacity:1}
+.card-title{font-family:var(--font-display); font-size:.95rem; font-weight:700; line-height:1.25;
+  margin:0; letter-spacing:-.01em; transition:color .15s ease;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.card-meta{font-family:var(--font-mono); font-size:.67rem; color:var(--ink-dim);
+  display:flex; gap:.5rem; align-items:center; font-variant-numeric:tabular-nums}
+.card-bar{height:2px; background:var(--surface-2); border-radius:100px; overflow:hidden}
+.card-bar i{display:block; height:100%; border-radius:100px}
+
+/* ================= SKELETON ================= */
+.skel .poster,.skel .line{background:var(--skeleton); background-size:400% 100%;
+  animation:shimmer 1.3s ease-in-out infinite}
+.skel .line{height:.7rem; border-radius:100px}
+.skel .line.short{width:55%}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+
+.more{display:flex; justify-content:center; margin-top:2.6rem}
+.foot{margin-top:3rem; padding-top:1.1rem; border-top:1px solid var(--rule);
+  font-family:var(--font-mono); font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-dim); display:flex; gap:1.4rem; flex-wrap:wrap}
+
+/* ================= TRAILER MODAL ================= */
+.modal{position:fixed; inset:0; z-index:100; display:none; place-items:center;
+  background:rgba(6,7,10,.8); backdrop-filter:blur(6px); padding:1rem}
+.modal[open]{display:grid}
+.modal-inner{width:min(960px,100%); background:#000; border-radius:12px; overflow:hidden;
+  box-shadow:var(--lift-hi); position:relative}
+.modal-inner iframe{width:100%; aspect-ratio:16/9; border:0; display:block}
+.modal-close{position:absolute; top:-2.4rem; right:0; font-family:var(--font-mono);
+  font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:#fff;
+  background:none; border:1px solid rgba(255,255,255,.4); border-radius:100px;
+  padding:.34rem .8rem; cursor:pointer}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wordmark"><span class="cue" aria-hidden="true"></span> MovieChat</div>
+  <span class="spacer"></span>
+  <button class="ghost" id="themeBtn" type="button">Theme</button>
+</header>
+
+<section class="marquee">
+  <div class="marquee-inner">
+    <p class="eyebrow">Natural-language film &amp; series discovery</p>
+    <h1>Say what you feel like. <em>Get the reel.</em></h1>
+    <p class="lede">Genre, mood, era, language, a director, or simply &ldquo;like&nbsp;X&rdquo; &mdash; the engine reads it locally and ranks what matches.</p>
+
+    <form class="askbar" id="askForm">
+      <input id="q" value="shah rukh khan movies" spellcheck="false"
+             autocomplete="off" aria-label="What do you want to watch">
+      <button class="go" id="goBtn" type="submit">Search</button>
+    </form>
+
+    <div class="examples">
+      <button class="example" type="button">highest rated horror movies</button>
+      <button class="example" type="button">korean thriller series from the 2010s</button>
+      <button class="example" type="button">feel good movies but not romance</button>
+      <button class="example" type="button">movies directed by christopher nolan</button>
+      <button class="example" type="button">mind bending sci-fi from the 90s</button>
+    </div>
+  </div>
+</section>
+
+<div class="toolbar">
+  <div class="tool">
+    <label for="sort">Sort</label>
+    <select class="select" id="sort">
+      <option value="">Best match</option>
+      <option value="vote_average.desc">Rating — high to low</option>
+      <option value="vote_average.asc">Rating — low to high</option>
+      <option value="primary_release_date.desc">Newest first</option>
+      <option value="primary_release_date.asc">Oldest first</option>
+      <option value="popularity.desc">Most popular</option>
+    </select>
+  </div>
+  <div class="tool">
+    <label id="cntLabel">Show</label>
+    <div class="segments" role="group" aria-labelledby="cntLabel">
+      <button class="segment" type="button" data-n="6">6</button>
+      <button class="segment" type="button" data-n="9" aria-pressed="true">9</button>
+      <button class="segment" type="button" data-n="12">12</button>
+      <button class="segment" type="button" data-n="20">20</button>
+    </div>
+  </div>
+  <div class="tool">
+    <label for="kind">Type</label>
+    <select class="select" id="kind">
+      <option value="">Anything</option>
+      <option value="movie">Film</option>
+      <option value="series">Series</option>
+    </select>
+  </div>
+  <div class="tool">
+    <label for="lang">Language</label>
+    <select class="select" id="lang">
+      <option value="">Any</option>
+      <option value="en">English</option><option value="hi">Hindi</option>
+      <option value="ko">Korean</option><option value="ja">Japanese</option>
+      <option value="es">Spanish</option><option value="fr">French</option>
+      <option value="ta">Tamil</option><option value="te">Telugu</option>
+    </select>
+  </div>
+  <span class="count" id="count"></span>
+</div>
+
+<main class="page">
+  <div class="tags" id="tags"></div>
+  <div id="noticeSlot"></div>
+  <div id="featureSlot"></div>
+  <div class="sec-head" id="restHeadWrap" hidden>
+    <h2 id="restHead">More matches</h2><span class="line"></span>
+  </div>
+  <ul class="grid" id="grid"></ul>
+  <div class="more" id="moreWrap" hidden>
+    <button class="btn" id="moreBtn" type="button">Load more</button>
+  </div>
+  <div class="foot">
+    <span>Data — TMDB &amp; Watchmode</span>
+    <span>Parsed locally · no LLM</span>
+  </div>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Trailer">
+  <div class="modal-inner">
+    <button class="modal-close" id="modalClose" type="button">Close</button>
+    <iframe id="modalFrame" allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
+            allowfullscreen title="Trailer"></iframe>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const qEl = $("q"), sortEl = $("sort"), kindEl = $("kind"), langEl = $("lang");
+const gridEl = $("grid"), featureSlot = $("featureSlot"), tagsEl = $("tags");
+const countEl = $("count"), noticeSlot = $("noticeSlot");
+const moreWrap = $("moreWrap"), moreBtn = $("moreBtn");
+const restHeadWrap = $("restHeadWrap"), restHead = $("restHead");
+const goBtn = $("goBtn");
+
+const state = { items: [], page: 0, pageSize: 9, loading: false, lastKey: null };
+
+const tier = s => s >= 75 ? "high" : s >= 60 ? "mid" : "low";
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
+  ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+/* Deterministic placeholder art when TMDB has no poster, so the grid keeps
+   its rhythm instead of collapsing into empty boxes. */
+function tint(title){
+  let h = 0;
+  for (const ch of String(title)) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return `linear-gradient(155deg, hsl(${h} 32% 22%), hsl(${(h + 38) % 360} 40% 42%))`;
+}
+
+function posterHTML(it, showBadge){
+  const inner = it.poster_url
+    ? `<img src="${esc(it.poster_url)}" alt="" loading="lazy">`
+    : `<span class="fallback">${esc(it.title)}</span>`;
+  const badge = showBadge && it.rating
+    ? `<span class="score-badge">★ ${Number(it.rating).toFixed(1)}</span>` : "";
+  const bg = it.poster_url ? "" : ` style="background:${tint(it.title)}"`;
+  return `<div class="poster"${bg}>${inner}${badge}</div>`;
+}
+
+function currentKey(){
+  return [qEl.value.trim(), sortEl.value, kindEl.value, langEl.value, state.pageSize].join("|");
+}
+
+const KIND_LABEL = {
+  genre:"genre", mood:"mood", sort:"order", era:"era", year:"years",
+  language:"language", keyword:"theme", exclude_genre:"excluded", role:"role",
+  seed_title:"like", content_type:"type", limit:"limit", runtime:"runtime",
+  min_rating:"min rating"
+};
+
+function renderTags(intent){
+  if (!intent){ tagsEl.innerHTML = ""; return; }
+  const parts = [];
+  for (const m of intent.matched_terms || []){
+    const label = KIND_LABEL[m.kind] || m.kind;
+    const body = m.kind === "exclude_genre" ? `<s>${esc(m.term)}</s>` : esc(m.term);
+    parts.push(`<span class="tag tag--${esc(m.kind)}"><b>${esc(label)}</b> ${body}</span>`);
+  }
+  if (intent.person_name){
+    parts.push(`<span class="tag"><b>person</b> ${esc(intent.person_name)}`
+      + (intent.person_role ? ` <b>${esc(intent.person_role)}</b>` : "") + `</span>`);
+  }
+  if (intent.min_votes){
+    parts.push(`<span class="tag tag--sort"><b>quality floor</b> ${intent.min_votes}+ votes</span>`);
+  }
+  if (!parts.length) parts.push(`<span class="tag"><b>read as</b> free text</span>`);
+  tagsEl.innerHTML = parts.join("");
+}
+
+function skeletons(n){
+  return Array.from({ length: n }, () => `
+    <li class="card skel">
+      <div class="poster"></div>
+      <div class="line"></div><div class="line short"></div>
+    </li>`).join("");
+}
+
+function render(){
+  const items = state.items;
+  if (!items.length){
+    featureSlot.innerHTML = "";
+    gridEl.innerHTML = "";
+    restHeadWrap.hidden = true;
+    moreWrap.hidden = true;
+    return;
+  }
+  const [lead, ...rest] = items;
+  const relevance = !sortEl.value;
+
+  featureSlot.innerHTML = `
+    <article class="feature">
+      ${posterHTML(lead, false)}
+      <div class="body">
+        ${lead.is_exact_match ? '<span class="flag">Exact match</span>'
+          : relevance ? '<span class="flag">Top match</span>' : ""}
+        <h3>${esc(lead.title)}</h3>
+        <p class="synopsis">${esc(lead.overview || "No synopsis available.")}</p>
+        <div class="specs">
+          ${lead.rating ? `<span><b>★ ${Number(lead.rating).toFixed(1)}</b> TMDB</span><span class="dot">/</span>` : ""}
+          <span>${esc((lead.release_date || lead.first_air_date || "—").slice(0,4))}</span>
+          <span class="dot">/</span>
+          <span>${esc((lead.language || "—").toUpperCase())}</span>
+          <span class="dot">/</span>
+          <span>${lead.type === "movie" ? "Film" : "Series"}</span>
+        </div>
+        <div class="where">${lead.available_on
+          ? `Streaming on <b>${esc(lead.available_on)}</b>`
+          : "Streaming availability unknown"}</div>
+        <div class="meter">
+          <div class="meter-track">
+            <div class="meter-fill" data-tier="${tier(lead.score)}" style="width:${lead.score}%"></div>
+          </div>
+          <span class="meter-num">${lead.score} match</span>
+        </div>
+        <div class="actions">
+          ${lead.trailer_url
+            ? `<button class="btn btn--solid" type="button" data-trailer="${esc(lead.trailer_url)}">Watch trailer</button>`
+            : ""}
+          <button class="btn" type="button" data-like="${esc(lead.title)}">More like this</button>
+        </div>
+      </div>
+    </article>`;
+
+  gridEl.innerHTML = rest.map((f, i) => `
+    <li><button class="card" style="animation-delay:${Math.min(i,12)*45}ms"
+        data-like="${esc(f.title)}" ${f.trailer_url ? `data-trailer="${esc(f.trailer_url)}"` : ""}>
+      ${posterHTML(f, true)}
+      <h4 class="card-title">${esc(f.title)}</h4>
+      <div class="card-meta">
+        <span>${esc((f.release_date || f.first_air_date || "—").slice(0,4))}</span>
+        <span>·</span><span>${esc((f.language || "—").toUpperCase())}</span>
+      </div>
+      <div class="card-bar"><i style="width:${f.score}%;background:var(--tier-${tier(f.score)})"></i></div>
+    </button></li>`).join("");
+
+  restHeadWrap.hidden = rest.length === 0;
+  moreWrap.hidden = false;
+  countEl.textContent = `${items.length} title${items.length === 1 ? "" : "s"}`;
+}
+
+function showNotice(title, body){
+  noticeSlot.innerHTML = `<div class="notice"><h3>${esc(title)}</h3><p>${esc(body)}</p></div>`;
+}
+
+async function search(reset){
+  if (state.loading) return;
+  const text = qEl.value.trim();
+  if (!text){ showNotice("Nothing to search", "Describe what you feel like watching."); return; }
+
+  state.loading = true;
+  goBtn.disabled = true;
+  noticeSlot.innerHTML = "";
+  if (reset){
+    state.page = 1;
+    state.items = [];
+    featureSlot.innerHTML = "";
+    restHeadWrap.hidden = true;
+    moreWrap.hidden = true;
+    gridEl.innerHTML = skeletons(state.pageSize);
+  } else {
+    state.page += 1;
+    moreBtn.textContent = "Loading…";
+  }
+
+  const body = {
+    text, page: state.page, page_size: state.pageSize,
+    content_type: kindEl.value || null,
+    language: langEl.value || null,
+    sort_by: sortEl.value || null
+  };
+
+  try {
+    const res = await fetch("/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok){
+      const detail = Array.isArray(data.detail)
+        ? (data.detail[0] && data.detail[0].msg) : data.detail;
+      gridEl.innerHTML = "";
+      showNotice("That search didn’t go through", detail || `Server responded ${res.status}.`);
+      if (!reset) state.page -= 1;
+      return;
+    }
+
+    const fresh = data.items || [];
+    state.items = reset ? fresh : state.items.concat(fresh);
+    state.lastKey = currentKey();
+    renderTags(data.intent);
+
+    if (!state.items.length){
+      gridEl.innerHTML = "";
+      featureSlot.innerHTML = `<div class="empty"><strong>Nothing matched</strong>
+        Try a broader description, or clear a filter.</div>`;
+      moreWrap.hidden = true;
+      countEl.textContent = "0 titles";
+      return;
+    }
+    if (!fresh.length && !reset){
+      moreBtn.textContent = "No more results";
+      moreBtn.disabled = true;
+      return;
+    }
+    render();
+  } catch (err){
+    gridEl.innerHTML = "";
+    showNotice("Can’t reach the server", "The MovieChat backend didn’t respond. Check that it’s running, then try again.");
+    if (!reset) state.page -= 1;
+  } finally {
+    state.loading = false;
+    goBtn.disabled = false;
+    moreBtn.textContent = "Load more";
+    moreBtn.disabled = false;
+  }
+}
+
+/* ---------- events ---------- */
+$("askForm").addEventListener("submit", e => { e.preventDefault(); search(true); });
+[sortEl, kindEl, langEl].forEach(el => el.addEventListener("change", () => search(true)));
+
+document.querySelectorAll(".segment").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".segment").forEach(x => x.removeAttribute("aria-pressed"));
+    b.setAttribute("aria-pressed", "true");
+    state.pageSize = +b.dataset.n;
+    search(true);
+  });
+});
+
+document.querySelectorAll(".example").forEach(b => {
+  b.addEventListener("click", () => { qEl.value = b.textContent.trim(); search(true); });
+});
+
+moreBtn.addEventListener("click", () => {
+  // Filters changed since the last fetch: start over rather than mixing sets.
+  if (state.lastKey !== currentKey()) search(true); else search(false);
+});
+
+/* Trailer opens in a modal; the rest of the card re-queries "like <title>". */
+document.body.addEventListener("click", e => {
+  const trailerBtn = e.target.closest("[data-trailer]");
+  if (trailerBtn && (trailerBtn.tagName === "BUTTON" && trailerBtn.classList.contains("btn"))){
+    openTrailer(trailerBtn.dataset.trailer); return;
+  }
+  const card = e.target.closest(".card");
+  if (card && card.dataset.trailer){ openTrailer(card.dataset.trailer); return; }
+  if (card && card.dataset.like){
+    qEl.value = `like ${card.dataset.like}`;
+    window.scrollTo({ top: 0 });
+    search(true); return;
+  }
+  const likeBtn = e.target.closest("[data-like].btn");
+  if (likeBtn){
+    qEl.value = `like ${likeBtn.dataset.like}`;
+    window.scrollTo({ top: 0 });
+    search(true);
+  }
+});
+
+function youtubeEmbed(url){
+  const m = String(url).match(/[?&]v=([\w-]{6,})/) || String(url).match(/youtu\.be\/([\w-]{6,})/);
+  return m ? `https://www.youtube-nocookie.com/embed/${m[1]}?autoplay=1` : null;
+}
+function openTrailer(url){
+  const src = youtubeEmbed(url);
+  if (!src){ window.open(url, "_blank", "noopener"); return; }
+  $("modalFrame").src = src;
+  $("modal").setAttribute("open", "");
+}
+function closeTrailer(){
+  $("modal").removeAttribute("open");
+  $("modalFrame").src = "";
+}
+$("modalClose").addEventListener("click", closeTrailer);
+$("modal").addEventListener("click", e => { if (e.target === $("modal")) closeTrailer(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeTrailer(); });
+
+$("themeBtn").addEventListener("click", () => {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("mc-theme", next); } catch (_){}
+});
+try {
+  const saved = localStorage.getItem("mc-theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+} catch (_){}
+
+search(true);
+</script>
+</body>
+</html>
