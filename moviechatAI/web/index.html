@@ -3,296 +3,367 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MovieChat — film &amp; series discovery</title>
+<title>MovieChat — be kind, rewind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Baloo+2:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   TOKENS — film exhibition: tungsten bulb, projector ember,
-   archival stock. Light is the default; dark is opt-in.
+   LATE FEE — a retro video-rental counter: cobalt-and-yellow
+   signage, torn-corner "New Release" stickers, a membership
+   ticket window, a poster wall lit by chase-light bulbs.
    ============================================================ */
 :root{
-  --ground:#F6F6F3; --ground-2:#EFEFEB;
-  --surface:#FFFFFF; --surface-2:#ECEDE8; --elevated:#FFFFFF;
-  --rule:rgba(16,18,22,.10); --rule-firm:rgba(16,18,22,.22);
-  --ink:#14171B; --ink-dim:#5C646F;
-  --accent:#A3630C; --ember:#A8431F;
-  --accent-soft:rgba(163,99,12,.10);
-  --glow:rgba(163,99,12,.22);
-  --tier-high:#2C6E4C; --tier-mid:#87611E; --tier-low:#963C30;
-  --grain:.018;
-  --lift:0 1px 2px rgba(16,18,22,.05), 0 8px 26px rgba(16,18,22,.09);
-  --lift-hi:0 2px 8px rgba(16,18,22,.09), 0 22px 48px rgba(16,18,22,.16);
+  --ground:#EFE6CE; --ground-2:#E6D8B4;
+  --surface:#FAF3DF; --surface-2:#E9DBB8;
+  --rule:rgba(9,20,58,.18); --rule-firm:rgba(9,20,58,.34);
+  --ink:#0B1A42; --ink-dim:#5B5C48;
+
+  /* blue = brand/primary · yellow = badges & highlights · red = late-fee/exclude */
+  --blue:#12379C; --yellow:#D69E00; --red:#B23A2E;
+  --blue-soft:rgba(18,55,156,.12); --yellow-soft:rgba(214,158,0,.16); --red-soft:rgba(178,58,46,.12);
+  --blue-glow:rgba(18,55,156,.35); --yellow-glow:rgba(214,158,0,.4); --red-glow:rgba(178,58,46,.3);
+
+  --tier-great:#2F7A4F; --tier-good:#8A6A1E; --tier-low:#953832;
+
+  --shadow-hard:5px 5px 0 var(--ink);
+  --shadow-hard-sm:3px 3px 0 var(--ink);
+  --shadow-poster:0 10px 26px rgba(11,26,66,.22), 0 2px 6px rgba(11,26,66,.14);
+  --shadow-poster-hi:0 30px 60px rgba(11,26,66,.34), 0 8px 18px rgba(11,26,66,.2);
   --skeleton:linear-gradient(90deg,var(--surface-2) 25%,var(--ground-2) 37%,var(--surface-2) 63%);
 
-  --font-display:Georgia,"Iowan Old Style","Palatino Linotype","Book Antiqua",serif;
-  --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  --font-mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,"Liberation Mono",monospace;
+  --f-display:"Baloo 2",system-ui,sans-serif;
+  --f-sans:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Consolas,monospace;
 }
 html[data-theme="dark"]{
-  --ground:#08090C; --ground-2:#0C0E13;
-  --surface:#101319; --surface-2:#171B23; --elevated:#1B2029;
-  --rule:rgba(242,240,235,.10); --rule-firm:rgba(242,240,235,.24);
-  --ink:#F2F0EB; --ink-dim:#98A1AE;
-  --accent:#F0A93B; --ember:#D9603C;
-  --accent-soft:rgba(240,169,59,.14); --glow:rgba(240,169,59,.30);
-  --tier-high:#5CBA8A; --tier-mid:#DCA855; --tier-low:#CC6B5C;
-  --grain:.038;
-  --lift:0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.5);
-  --lift-hi:0 2px 8px rgba(0,0,0,.6), 0 26px 60px rgba(0,0,0,.66);
-  --skeleton:linear-gradient(90deg,var(--surface-2) 25%,var(--elevated) 37%,var(--surface-2) 63%);
+  --ground:#081231; --ground-2:#0E1B42;
+  --surface:#0F1E4A; --surface-2:#162757;
+  --rule:rgba(255,214,64,.14); --rule-firm:rgba(255,214,64,.28);
+  --ink:#F5EFD9; --ink-dim:#9FB0DE;
+
+  --blue:#3F6BE0; --yellow:#FFD640; --red:#FF6B5C;
+  --blue-soft:rgba(63,107,224,.2); --yellow-soft:rgba(255,214,64,.16); --red-soft:rgba(255,107,92,.16);
+  --blue-glow:rgba(63,107,224,.5); --yellow-glow:rgba(255,214,64,.5); --red-glow:rgba(255,107,92,.4);
+
+  --tier-great:#54C085; --tier-good:#E8C158; --tier-low:#E97A6C;
+
+  --shadow-hard:5px 5px 0 rgba(0,0,0,.6);
+  --shadow-hard-sm:3px 3px 0 rgba(0,0,0,.6);
+  --shadow-poster:0 16px 40px rgba(0,0,0,.55), 0 4px 10px rgba(0,0,0,.4);
+  --shadow-poster-hi:0 34px 70px rgba(0,0,0,.65), 0 10px 20px rgba(0,0,0,.5);
+  --skeleton:linear-gradient(90deg,var(--surface-2) 25%,var(--ground-2) 37%,var(--surface-2) 63%);
 }
+:root[data-theme="dark"]{ color-scheme:dark }
+:root[data-theme="light"]{ color-scheme:light }
 
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
   margin:0; background:var(--ground); color:var(--ink);
-  font-family:var(--font-sans); font-size:clamp(.86rem,.82rem+.16vw,.95rem);
+  font-family:var(--f-sans); font-size:clamp(.87rem,.83rem+.16vw,.97rem);
   line-height:1.55; -webkit-font-smoothing:antialiased;
 }
-body::after{
-  content:""; position:fixed; inset:0; pointer-events:none; z-index:99; opacity:var(--grain);
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
 img{max-width:100%; display:block}
-
-.eyebrow{font-family:var(--font-mono); font-size:.63rem; letter-spacing:.18em;
+:focus-visible{outline:3px solid var(--blue); outline-offset:2px}
+.eyebrow{font-family:var(--f-mono); font-size:.66rem; letter-spacing:.2em;
   text-transform:uppercase; color:var(--ink-dim); margin:0}
 
+/* ================= CHASE-LIGHT BULB STRIPS ================= */
+.bulbs{display:flex; align-items:center; justify-content:space-between; gap:6px;
+  overflow:hidden; padding:.5rem clamp(.6rem,3vw,2rem); background:var(--ink)}
+.bulbs i{width:7px; height:7px; border-radius:50%; flex:none; display:block;
+  animation:bulb-pulse 1.6s ease-in-out infinite}
+.bulbs i:nth-child(2n+1){background:var(--blue); box-shadow:0 0 7px var(--blue-glow)}
+.bulbs i:nth-child(2n){background:var(--yellow); box-shadow:0 0 7px var(--yellow-glow)}
+@keyframes bulb-pulse{0%,100%{opacity:.35; transform:scale(.82)} 50%{opacity:1; transform:scale(1)}}
+
 /* ================= MASTHEAD ================= */
-.masthead{
-  position:sticky; top:0; z-index:40; display:flex; align-items:center; gap:1rem;
-  padding:.85rem clamp(1rem,4vw,3rem); border-bottom:1px solid var(--rule);
-  background:color-mix(in srgb,var(--ground) 82%,transparent); backdrop-filter:blur(14px) saturate(1.3);
+.masthead{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:.9rem;
+  padding:.8rem clamp(1rem,4vw,3rem); border-bottom:3px solid var(--ink);
+  background:var(--ground)}
+.reel{width:30px; height:30px; border-radius:50%; flex:none; background:var(--ink);
+  background-image:
+    radial-gradient(circle 3px at 50% 14%, var(--ground) 98%, transparent 100%),
+    radial-gradient(circle 3px at 84% 32%, var(--ground) 98%, transparent 100%),
+    radial-gradient(circle 3px at 84% 68%, var(--ground) 98%, transparent 100%),
+    radial-gradient(circle 3px at 50% 86%, var(--ground) 98%, transparent 100%),
+    radial-gradient(circle 3px at 16% 68%, var(--ground) 98%, transparent 100%),
+    radial-gradient(circle 3px at 16% 32%, var(--ground) 98%, transparent 100%),
+    radial-gradient(circle 6px at 50% 50%, var(--ground) 98%, transparent 100%);
 }
-.wordmark{font-family:var(--font-display); font-size:1.15rem; font-weight:700;
-  letter-spacing:-.015em; display:flex; align-items:center; gap:.55rem}
-.cue{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--accent);position:relative;flex:none}
-.cue::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--glow)}
+.wordmark{display:flex; align-items:center; gap:.6rem}
+/* Plain, no text-shadow: at this small a size (masthead-scale, ~21px) an
+   offset shadow doesn't read as depth, it just muddies the letterforms —
+   especially in dark mode, where both the ink and the shadow color are
+   light against the navy ground and blur into a halo. The same offset
+   works fine on the much larger hero headline below; it doesn't scale down. */
+.wordmark .mark{font-family:var(--f-display); font-size:1.3rem; line-height:1;
+  letter-spacing:.01em; color:var(--blue)}
 .spacer{margin-left:auto}
-.ghost{font:inherit; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.12em;
-  text-transform:uppercase; background:none; border:1px solid var(--rule-firm); color:var(--ink-dim);
-  padding:.34rem .7rem; border-radius:100px; cursor:pointer;
-  transition:color .15s ease,border-color .15s ease}
-.ghost:hover{color:var(--ink); border-color:var(--ink-dim)}
+.switch{font:inherit; font-family:var(--f-mono); font-size:.62rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; cursor:pointer;
+  background:var(--surface); color:var(--ink); border:2px solid var(--ink);
+  padding:.4rem .8rem; box-shadow:var(--shadow-hard-sm);
+  transition:transform .12s ease, box-shadow .12s ease}
+.switch:hover{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink)}
+.switch:active{transform:translate(3px,3px); box-shadow:none}
 
-/* ================= MARQUEE ================= */
-.marquee{position:relative; overflow:hidden;
-  padding:clamp(2.2rem,5.5vw,4.2rem) clamp(1rem,4vw,3rem) clamp(1.5rem,3vw,2.2rem);
-  border-bottom:1px solid var(--rule)}
-.marquee::before{
-  content:""; position:absolute; inset:-40% -10% auto -10%; height:150%; pointer-events:none;
+/* ================= TICKER ================= */
+.ticker{overflow:hidden; border-bottom:1px solid var(--rule); background:var(--surface-2)}
+.ticker-track{display:flex; gap:2.4rem; white-space:nowrap; width:max-content;
+  padding:.5rem 0; animation:ticker-scroll 34s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker-track span{font-family:var(--f-mono); font-size:.72rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-dim); display:inline-flex; align-items:center; gap:2.4rem}
+.ticker-track span::after{content:"\2726"; color:var(--yellow); margin-left:2.4rem}
+@keyframes ticker-scroll{from{transform:translateX(0)} to{transform:translateX(-50%)}}
+
+/* ================= HERO ================= */
+.hero{position:relative; padding:clamp(2rem,5vw,3.6rem) clamp(1rem,4vw,3rem) clamp(1.6rem,3vw,2.2rem);
+  border-bottom:3px solid var(--ink); overflow:hidden}
+.hero::before{content:""; position:absolute; inset:-30% -10% auto -10%; height:130%; pointer-events:none;
   background:
-    radial-gradient(52% 60% at 18% 0%, color-mix(in srgb,var(--accent) 24%,transparent), transparent 68%),
-    radial-gradient(46% 56% at 74% 6%, color-mix(in srgb,var(--ember) 20%,transparent), transparent 66%);
-  filter:blur(22px);
+    radial-gradient(40% 60% at 8% 0%, var(--blue-soft), transparent 68%),
+    radial-gradient(36% 56% at 92% 10%, var(--yellow-soft), transparent 66%),
+    radial-gradient(30% 50% at 50% 100%, var(--blue-soft), transparent 70%);
 }
-.marquee-inner{position:relative; max-width:1500px; margin:0 auto}
-.marquee h1{font-family:var(--font-display); font-weight:700;
-  font-size:clamp(1.9rem,1.25rem+3vw,3.4rem); line-height:1.03; letter-spacing:-.028em;
-  margin:.7rem 0 .5rem; max-width:17ch; text-wrap:balance}
-.marquee h1 em{font-style:normal; background:linear-gradient(120deg,var(--accent),var(--ember));
-  -webkit-background-clip:text; background-clip:text; color:transparent}
-.lede{color:var(--ink-dim); max-width:56ch; margin:0 0 1.4rem; font-size:1rem}
+.hero-inner{position:relative; max-width:1500px; margin:0 auto}
+.hero h1{font-family:var(--f-display); font-weight:400; margin:.8rem 0 .6rem;
+  font-size:clamp(2rem,1.1rem+4.2vw,4.2rem); line-height:1.02; letter-spacing:.01em;
+  text-wrap:balance; text-transform:uppercase}
+.hero h1 .hl{color:var(--blue); text-shadow:3px 3px 0 var(--yellow)}
+.lede{color:var(--ink-dim); max-width:58ch; margin:0 0 1.5rem; font-size:1rem; font-weight:500}
 
-.askbar{display:flex; gap:.5rem; max-width:760px; align-items:center;
-  background:var(--surface); border:1px solid var(--rule-firm); border-radius:100px;
-  padding:.4rem .4rem .4rem 1.15rem; box-shadow:var(--lift);
-  transition:border-color .16s ease, box-shadow .16s ease}
-.askbar:focus-within{border-color:var(--accent); box-shadow:var(--lift),0 0 0 4px var(--accent-soft)}
-.askbar input{flex:1; min-width:0; font:inherit; font-size:1rem; font-family:var(--font-display);
-  background:none; border:none; color:var(--ink); padding:.55rem 0}
+/* ---- ticket window ---- */
+.ticket-window{max-width:780px; position:relative; background:var(--surface);
+  border:3px solid var(--ink); box-shadow:var(--shadow-hard); padding:.3rem}
+.ticket-window::before,.ticket-window::after{content:""; position:absolute; top:50%;
+  width:20px; height:20px; border-radius:50%; background:var(--ground);
+  border:3px solid var(--ink); transform:translateY(-50%); z-index:2}
+.ticket-window::before{left:-13px}
+.ticket-window::after{right:-13px}
+.askbar{display:flex; gap:.5rem; align-items:center;
+  background-image:repeating-linear-gradient(to right, transparent 0 10px, var(--rule-firm) 10px 11px);
+  background-repeat:no-repeat; background-position:left 68px top; background-size:1px 100%;
+}
+.askbar input{flex:1; min-width:0; font:inherit; font-family:var(--f-sans); font-weight:600;
+  font-size:1.05rem; background:none; border:none; color:var(--ink); padding:.85rem .8rem .85rem 1rem}
 .askbar input::placeholder{color:var(--ink-dim)}
 .askbar input:focus{outline:none}
-.go{font:inherit; font-family:var(--font-mono); font-size:.7rem; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase; border:none; border-radius:100px; cursor:pointer;
-  padding:.7rem 1.4rem; color:#fff; background:linear-gradient(120deg,var(--accent),var(--ember));
-  box-shadow:0 4px 16px var(--glow); transition:transform .14s ease, box-shadow .14s ease}
-.go:hover{transform:translateY(-1px); box-shadow:0 8px 24px var(--glow)}
-.go[disabled]{opacity:.55; cursor:progress; transform:none}
+.go{font:inherit; font-family:var(--f-mono); font-size:.74rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; border:2px solid var(--ink); cursor:pointer;
+  padding:.85rem 1.3rem; margin:.35rem; color:var(--ink); background:var(--yellow);
+  box-shadow:var(--shadow-hard-sm); transition:transform .12s ease, box-shadow .12s ease}
+.go:hover{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink)}
+.go:active{transform:translate(3px,3px); box-shadow:none}
+.go[disabled]{opacity:.55; cursor:progress}
 
-.examples{display:flex; flex-wrap:wrap; gap:.4rem; margin-top:1rem}
-.example{font:inherit; font-family:var(--font-mono); font-size:.68rem; color:var(--ink-dim);
-  background:color-mix(in srgb,var(--surface) 60%,transparent); border:1px solid var(--rule);
-  border-radius:100px; padding:.36rem .78rem; cursor:pointer;
-  transition:color .15s ease,border-color .15s ease,background .15s ease}
-.example:hover{color:var(--accent); border-color:var(--accent); background:var(--accent-soft)}
+.examples{display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.1rem}
+.example{font:inherit; font-family:var(--f-mono); font-size:.7rem; font-weight:500; color:var(--ink);
+  background:var(--surface); border:2px dashed var(--rule-firm);
+  padding:.4rem .8rem; cursor:pointer; transition:border-color .15s ease, color .15s ease, background .15s ease}
+.example:hover{color:var(--blue); border-color:var(--blue); background:var(--blue-soft); border-style:solid}
 
 /* ================= TOOLBAR ================= */
-.toolbar{position:sticky; top:3.05rem; z-index:30; display:flex; align-items:center;
-  gap:1.3rem; flex-wrap:wrap; padding:.7rem clamp(1rem,4vw,3rem);
-  border-bottom:1px solid var(--rule);
-  background:color-mix(in srgb,var(--ground) 88%,transparent); backdrop-filter:blur(14px)}
+.toolbar{position:sticky; top:0; z-index:40; display:flex; align-items:center;
+  gap:1.2rem; flex-wrap:wrap; padding:.65rem clamp(1rem,4vw,3rem);
+  border-bottom:3px solid var(--ink); background:var(--surface-2)}
 .tool{display:flex; align-items:center; gap:.5rem}
-.tool>label{font-family:var(--font-mono); font-size:.62rem; letter-spacing:.14em;
+.tool>label{font-family:var(--f-mono); font-size:.62rem; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink-dim); white-space:nowrap}
-.select{font:inherit; font-family:var(--font-mono); font-size:.74rem; background:var(--surface);
-  color:var(--ink); border:1px solid var(--rule-firm); border-radius:100px;
-  padding:.4rem .8rem; cursor:pointer}
-.select:focus{border-color:var(--accent); outline:none}
-.segments{display:flex; background:var(--surface); border:1px solid var(--rule-firm);
-  border-radius:100px; padding:2px; gap:2px}
-.segment{font:inherit; font-family:var(--font-mono); font-size:.72rem;
-  font-variant-numeric:tabular-nums; min-width:2.3rem; background:none; color:var(--ink-dim);
-  border:none; border-radius:100px; padding:.3rem .1rem; cursor:pointer;
-  transition:background .15s ease,color .15s ease}
-.segment:hover{color:var(--ink)}
-.segment[aria-pressed="true"]{background:linear-gradient(120deg,var(--accent),var(--ember));
-  color:#fff; font-weight:700}
-.toolbar .count{margin-left:auto; font-family:var(--font-mono); font-size:.68rem;
+.select{font:inherit; font-family:var(--f-mono); font-size:.74rem; font-weight:500;
+  background:var(--surface); color:var(--ink); border:2px solid var(--ink);
+  padding:.4rem .7rem; cursor:pointer}
+.select:focus{outline:none; box-shadow:var(--shadow-hard-sm)}
+.segments{display:flex; border:2px solid var(--ink); background:var(--surface)}
+.segment{font:inherit; font-family:var(--f-mono); font-size:.74rem; font-weight:700;
+  font-variant-numeric:tabular-nums; min-width:2.1rem; background:none; color:var(--ink-dim);
+  border:none; border-right:2px solid var(--ink); padding:.36rem 0; cursor:pointer}
+.segment:last-child{border-right:none}
+.segment:hover{color:var(--ink); background:var(--ground-2)}
+.segment[aria-pressed="true"]{background:var(--yellow); color:var(--ink)}
+.toolbar .count{margin-left:auto; font-family:var(--f-mono); font-size:.68rem; font-weight:600;
   color:var(--ink-dim); letter-spacing:.1em; font-variant-numeric:tabular-nums}
 
 /* ================= PAGE ================= */
-.page{max-width:1500px; margin:0 auto; padding:1.6rem clamp(1rem,4vw,3rem) 4rem}
-.tags{display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; margin-bottom:2rem; min-height:1.6rem}
-.tag{font-family:var(--font-mono); font-size:.68rem; border:1px solid var(--rule-firm);
-  border-radius:100px; padding:.24rem .62rem; color:var(--ink);
+.page{max-width:1500px; margin:0 auto; padding:1.8rem clamp(1rem,4vw,3rem) 4rem}
+
+.tags{display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; margin-bottom:2.2rem; min-height:1.7rem}
+.tags .tags-label{font-family:var(--f-mono); font-size:.62rem; font-weight:700; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-dim); margin-right:.3rem}
+.tag{font-family:var(--f-mono); font-size:.7rem; font-weight:500; border:2px solid var(--ink-dim);
+  background:var(--surface); padding:.26rem .6rem; color:var(--ink);
   display:inline-flex; align-items:center; gap:.4rem}
-.tag b{font-weight:400; color:var(--ink-dim); text-transform:uppercase; font-size:.57rem; letter-spacing:.1em}
-.tag--sort{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 50%,transparent); background:var(--accent-soft)}
-.tag--exclude_genre{color:var(--tier-low); border-color:color-mix(in srgb,var(--tier-low) 45%,transparent)}
-.tag--exclude_genre s{text-decoration-thickness:1px}
+.tag b{font-weight:700; text-transform:uppercase; font-size:.6rem; letter-spacing:.08em; color:var(--ink-dim)}
+.tag--sort{color:var(--ink); border-color:var(--yellow); background:var(--yellow-soft)}
+.tag--exclude_genre{color:var(--ink); border-color:var(--red); background:var(--red-soft)}
+.tag--exclude_genre s{text-decoration-thickness:2px; text-decoration-color:var(--red)}
+.tag--language,.tag--era,.tag--year{border-color:var(--blue); background:var(--blue-soft)}
 
-.sec-head{display:flex; align-items:baseline; gap:.9rem; margin:0 0 1.1rem}
-.sec-head h2{font-family:var(--font-display); font-size:1.15rem; margin:0; letter-spacing:-.01em}
-.sec-head .line{flex:1; height:1px; background:var(--rule)}
+.sec-head{display:flex; align-items:center; gap:1rem; margin:0 0 1.2rem}
+.sec-head h2{font-family:var(--f-display); font-weight:400; font-size:1.15rem; margin:0;
+  letter-spacing:.02em; text-transform:uppercase; white-space:nowrap}
+.sec-head .line{flex:1; height:3px; background:repeating-linear-gradient(to right,var(--ink) 0 8px,transparent 8px 14px)}
 
-.notice{border:1px solid var(--rule-firm); border-left:3px solid var(--tier-low);
-  background:var(--surface); border-radius:8px; padding:.9rem 1.1rem; margin-bottom:1.5rem}
-.notice h3{margin:0 0 .25rem; font-size:.92rem; font-family:var(--font-sans)}
-.notice p{margin:0; color:var(--ink-dim); font-size:.86rem}
-.empty{text-align:center; padding:3.5rem 1rem; color:var(--ink-dim);
-  border:1px dashed var(--rule-firm); border-radius:12px}
-.empty strong{display:block; color:var(--ink); font-family:var(--font-display);
-  font-size:1.15rem; margin-bottom:.3rem}
+.notice{border:2px solid var(--ink); border-left:6px solid var(--red);
+  background:var(--surface); box-shadow:var(--shadow-hard-sm); padding:1rem 1.2rem; margin-bottom:1.6rem}
+.notice .eyebrow{color:var(--red); margin-bottom:.3rem}
+.notice h3{margin:0 0 .25rem; font-size:.94rem; font-family:var(--f-sans); font-weight:700}
+.notice p{margin:0; color:var(--ink-dim); font-size:.87rem}
+.empty{text-align:center; padding:3.6rem 1rem; color:var(--ink-dim);
+  border:3px dashed var(--ink-dim); background:var(--surface)}
+.empty .eyebrow{color:var(--blue)}
+.empty strong{display:block; color:var(--ink); font-family:var(--f-display); font-weight:400;
+  font-size:1.3rem; margin:.5rem 0 .4rem; text-transform:uppercase}
 
-/* ================= FEATURE ================= */
-.feature{display:grid; grid-template-columns:minmax(0,210px) minmax(0,1fr);
-  gap:clamp(1.2rem,3vw,2.4rem); background:var(--elevated); border:1px solid var(--rule);
-  border-radius:14px; padding:clamp(1.1rem,2.4vw,1.8rem); box-shadow:var(--lift);
-  margin-bottom:2.6rem; position:relative; overflow:hidden}
-.feature::before{content:""; position:absolute; inset:0 0 auto 0; height:2px;
-  background:linear-gradient(90deg,var(--accent),var(--ember),transparent)}
-@media (max-width:680px){.feature{grid-template-columns:minmax(0,130px) minmax(0,1fr)}}
+/* ================= NOW SHOWING (feature) ================= */
+.feature{display:grid; grid-template-columns:minmax(0,220px) minmax(0,1fr);
+  gap:clamp(1.3rem,3vw,2.6rem); background:var(--surface); border:3px solid var(--ink);
+  box-shadow:var(--shadow-hard); padding:clamp(1.2rem,2.4vw,1.9rem); margin-bottom:2.8rem}
+@media (max-width:680px){.feature{grid-template-columns:minmax(0,140px) minmax(0,1fr)}}
 
-.poster{aspect-ratio:2/3; border-radius:8px; position:relative; overflow:hidden;
-  display:flex; align-items:flex-end; padding:.6rem; box-shadow:var(--lift);
-  border:1px solid var(--rule); background:var(--surface-2)}
+.frame{perspective:900px}
+.poster{aspect-ratio:2/3; position:relative; overflow:hidden; display:flex; align-items:flex-end;
+  padding:.6rem; box-shadow:var(--shadow-poster); border:2px solid var(--ink); background:var(--surface-2);
+  transition:transform .18s ease, box-shadow .18s ease; will-change:transform}
 .poster img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
-.poster .fallback{position:relative; font-family:var(--font-display); font-size:.72rem;
-  line-height:1.22; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.7)}
-.poster .score-badge{position:absolute; top:.5rem; right:.5rem; z-index:2;
-  font-family:var(--font-mono); font-size:.62rem; font-weight:700; font-variant-numeric:tabular-nums;
-  background:rgba(8,9,12,.74); backdrop-filter:blur(6px); color:#fff;
-  border:1px solid rgba(255,255,255,.18); padding:.16rem .42rem; border-radius:100px}
+.poster .fallback{position:relative; font-family:var(--f-display); font-weight:400; font-size:.78rem;
+  line-height:1.25; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.7); text-transform:uppercase}
+/* "New Release" rental-tag sticker with a folded corner — the classic
+   Blockbuster shelf tag. The fold is drawn as its own triangle (a darker
+   tone of the tag color) rather than a cut-out matching the page
+   background, because this badge sits over a poster photo: there is no
+   single background color behind it that a cut-out trick could reveal. */
+.seal{position:absolute; top:-9px; right:-9px; z-index:3; min-width:46px;
+  padding:.32rem .5rem .38rem; text-align:center;
+  background:var(--yellow); color:var(--blue); border:2px solid var(--blue);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transform:rotate(7deg); box-shadow:var(--shadow-hard-sm)}
+.seal::before,.seal::after{content:""; position:absolute; top:-2px; right:-2px;
+  width:15px; height:15px; clip-path:polygon(100% 0, 100% 100%, 0 0)}
+.seal::before{background:rgba(0,0,0,.4); filter:blur(1.5px)}
+.seal::after{background:#8A6A00}
+.seal b{position:relative; z-index:2; font-family:var(--f-mono); font-size:.82rem;
+  font-weight:700; line-height:1; font-variant-numeric:tabular-nums}
+.seal small{position:relative; z-index:2; font-family:var(--f-mono); font-size:.42rem; letter-spacing:.06em}
 
-.feature .body{display:flex; flex-direction:column; gap:.7rem; min-width:0}
-.flag{align-self:flex-start; font-family:var(--font-mono); font-size:.58rem; letter-spacing:.14em;
-  text-transform:uppercase; font-weight:700; color:#fff;
-  background:linear-gradient(120deg,var(--accent),var(--ember)); padding:.2rem .55rem; border-radius:100px}
-.feature h3{font-family:var(--font-display); font-size:clamp(1.45rem,1.1rem+1.4vw,2.1rem);
-  line-height:1.06; letter-spacing:-.022em; margin:0; text-wrap:balance}
-.synopsis{margin:0; color:var(--ink-dim); max-width:62ch; font-size:.94rem}
-.specs{display:flex; flex-wrap:wrap; gap:.35rem .9rem; font-family:var(--font-mono);
-  font-size:.71rem; color:var(--ink-dim); font-variant-numeric:tabular-nums}
+.feature .body{display:flex; flex-direction:column; gap:.75rem; min-width:0}
+.flag{align-self:flex-start; font-family:var(--f-mono); font-size:.62rem; letter-spacing:.14em;
+  text-transform:uppercase; font-weight:700; color:var(--yellow); background:var(--blue);
+  padding:.28rem .65rem}
+.feature h3{font-family:var(--f-display); font-weight:400; text-transform:uppercase;
+  font-size:clamp(1.4rem,1rem+1.6vw,2.15rem); line-height:1.08; letter-spacing:.01em; margin:0; text-wrap:balance}
+.synopsis{margin:0; color:var(--ink-dim); max-width:62ch; font-size:.95rem; font-weight:500}
+.specs{display:flex; flex-wrap:wrap; gap:.4rem .95rem; font-family:var(--f-mono);
+  font-size:.74rem; font-weight:500; color:var(--ink-dim); font-variant-numeric:tabular-nums}
 .specs b{font-weight:700; color:var(--ink)}
 .specs .dot{opacity:.4}
-.where{font-size:.82rem; color:var(--ink-dim)}
-.where b{color:var(--ink); font-weight:600}
+.where{font-size:.85rem; color:var(--ink-dim); font-weight:500}
+.where b{color:var(--ink); font-weight:700}
 
 .meter{display:flex; align-items:center; gap:.7rem; max-width:380px}
-.meter-track{flex:1; height:4px; background:var(--surface-2); border-radius:100px; overflow:hidden}
-.meter-fill{height:100%; border-radius:100px; background:var(--tier-mid);
-  transition:width .5s cubic-bezier(.22,1,.36,1)}
-.meter-fill[data-tier="high"]{background:linear-gradient(90deg,var(--tier-high),color-mix(in srgb,var(--tier-high) 55%,var(--accent)))}
+.meter-track{flex:1; height:10px; background:var(--surface-2); border:2px solid var(--ink); overflow:hidden}
+.meter-fill{height:100%; background:var(--tier-good)}
+.meter-fill[data-tier="high"]{background:var(--tier-great)}
 .meter-fill[data-tier="low"]{background:var(--tier-low)}
-.meter-num{font-family:var(--font-mono); font-size:.68rem; color:var(--ink-dim);
-  font-variant-numeric:tabular-nums; letter-spacing:.05em}
+.meter-num{font-family:var(--f-mono); font-size:.72rem; font-weight:700; color:var(--ink);
+  font-variant-numeric:tabular-nums; letter-spacing:.03em; white-space:nowrap}
 
-.actions{display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.2rem}
-.btn{font:inherit; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.11em;
-  text-transform:uppercase; padding:.52rem .95rem; border-radius:100px; cursor:pointer;
-  border:1px solid var(--rule-firm); background:transparent; color:var(--ink);
-  transition:background .15s ease,border-color .15s ease,transform .15s ease}
-.btn:hover{border-color:var(--ink-dim); background:var(--surface-2); transform:translateY(-1px)}
-.btn--solid{border-color:transparent; color:#fff;
-  background:linear-gradient(120deg,var(--accent),var(--ember)); box-shadow:0 3px 14px var(--glow)}
-.btn--solid:hover{filter:brightness(1.07)}
+.actions{display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.2rem}
+.btn{font:inherit; font-family:var(--f-mono); font-size:.7rem; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; padding:.55rem 1rem; cursor:pointer;
+  border:2px solid var(--ink); background:var(--surface); color:var(--ink);
+  box-shadow:var(--shadow-hard-sm); transition:transform .12s ease, box-shadow .12s ease}
+.btn:hover{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px); box-shadow:none}
+.btn--solid{background:var(--yellow); color:var(--ink)}
 
-/* ================= GRID ================= */
-.grid{list-style:none; margin:0; padding:0; display:grid; gap:clamp(1rem,1.8vw,1.5rem);
-  grid-template-columns:repeat(auto-fill,minmax(158px,1fr))}
-/* The grid cell is the <li>; make it a flex container so the <button>
-   inside stretches to fill it. Without this a button sizes to its own
-   content, so the title's length ends up dictating the poster width. */
+/* ================= POSTER WALL (grid) ================= */
+.grid{list-style:none; margin:0; padding:0; display:grid; gap:clamp(1.3rem,2vw,1.9rem);
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
 .grid > li{display:flex; min-width:0}
-.card{display:flex; flex-direction:column; gap:.55rem; cursor:pointer;
+.card{display:flex; flex-direction:column; gap:.6rem; cursor:pointer;
   width:100%; min-width:0; animation:rise .5s cubic-bezier(.22,1,.36,1) both;
-  border:none; background:none; padding:0; text-align:left; color:inherit; font:inherit}
-@keyframes rise{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
-.card .poster{transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease}
-.card:hover .poster{transform:translateY(-7px) scale(1.014); box-shadow:var(--lift-hi)}
-.card:hover .card-title{color:var(--accent)}
-.card .poster::after{content:""; position:absolute; top:7px; left:7px; z-index:2;
-  width:9px; height:9px; border-radius:50%; border:1.5px solid rgba(255,255,255,.9);
-  opacity:0; transition:opacity .2s ease}
-.card:hover .poster::after{opacity:1}
-.card-title{font-family:var(--font-display); font-size:.95rem; font-weight:700; line-height:1.25;
-  margin:0; letter-spacing:-.01em; transition:color .15s ease;
+  border:none; background:none; padding:0 0 .3rem; text-align:left; color:inherit; font:inherit}
+@keyframes rise{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
+.card .frame{perspective:700px}
+.card .poster{transform:rotate(var(--rest-rot,0deg))}
+.card:hover .card-title{color:var(--blue)}
+.card .poster .pin{position:absolute; top:6px; left:50%; transform:translateX(-50%); z-index:3;
+  width:12px; height:12px; border-radius:50%; background:var(--yellow); box-shadow:var(--shadow-hard-sm)}
+.card-title{font-family:var(--f-display); font-weight:400; font-size:.92rem; line-height:1.3;
+  margin:0; letter-spacing:.005em; transition:color .15s ease; text-transform:uppercase;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
-.card-meta{font-family:var(--font-mono); font-size:.67rem; color:var(--ink-dim);
+.card-meta{font-family:var(--f-mono); font-size:.68rem; font-weight:500; color:var(--ink-dim);
   display:flex; gap:.5rem; align-items:center; font-variant-numeric:tabular-nums}
-/* Pushed to the bottom of the card so bars line up across a row even when
-   one title wraps to two lines and its neighbour doesn't. */
-.card-bar{height:2px; background:var(--surface-2); border-radius:100px;
-  overflow:hidden; margin-top:auto}
-.card-bar i{display:block; height:100%; border-radius:100px}
+.card-bar{height:6px; background:var(--surface-2); border:2px solid var(--ink); overflow:hidden; margin-top:auto}
+/* Matches the .meter-fill pattern below: tier() returns "high"/"mid"/"low",
+   but only --tier-great/--tier-good/--tier-low exist as tokens. Building
+   "--tier-mid" or "--tier-high" as a literal var() name (as this used to)
+   resolves to nothing, so the bar was invisible for any score >= 60. */
+.card-bar i{display:block; height:100%; background:var(--tier-good)}
+.card-bar i[data-tier="high"]{background:var(--tier-great)}
+.card-bar i[data-tier="low"]{background:var(--tier-low)}
 
 /* ================= SKELETON ================= */
 .skel .poster,.skel .line{background:var(--skeleton); background-size:400% 100%;
-  animation:shimmer 1.3s ease-in-out infinite}
-.skel .line{height:.7rem; border-radius:100px}
+  animation:shimmer 1.3s ease-in-out infinite; border-color:var(--rule-firm)}
+.skel .line{height:.75rem}
 .skel .line.short{width:55%}
 @keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
 
-.more{display:flex; justify-content:center; margin-top:2.6rem}
-.foot{margin-top:3rem; padding-top:1.1rem; border-top:1px solid var(--rule);
-  font-family:var(--font-mono); font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--ink-dim); display:flex; gap:1.4rem; flex-wrap:wrap}
+.more{display:flex; justify-content:center; margin-top:2.8rem}
+.foot{margin-top:3.2rem; padding-top:1.2rem; border-top:3px solid var(--ink);
+  font-family:var(--f-mono); font-size:.66rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-dim); display:flex; gap:1.4rem; flex-wrap:wrap; justify-content:space-between}
+.foot .brand{color:var(--blue); font-weight:700}
 
-/* ================= TRAILER MODAL ================= */
+/* ================= SCREENING ROOM (trailer modal) ================= */
 .modal{position:fixed; inset:0; z-index:100; display:none; place-items:center;
-  background:rgba(6,7,10,.8); backdrop-filter:blur(6px); padding:1rem}
+  background:rgba(10,6,16,.86); padding:1rem}
 .modal[open]{display:grid}
-.modal-inner{width:min(960px,100%); background:#000; border-radius:12px; overflow:hidden;
-  box-shadow:var(--lift-hi); position:relative}
+.modal-inner{width:min(960px,100%); background:#000; border:3px solid var(--blue); overflow:hidden;
+  box-shadow:0 0 0 6px rgba(0,0,0,.4), var(--shadow-poster-hi); position:relative}
 .modal-inner iframe{width:100%; aspect-ratio:16/9; border:0; display:block}
-.modal-close{position:absolute; top:-2.4rem; right:0; font-family:var(--font-mono);
+.modal-close{position:absolute; top:-2.6rem; right:0; font-family:var(--f-mono); font-weight:700;
   font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:#fff;
-  background:none; border:1px solid rgba(255,255,255,.4); border-radius:100px;
-  padding:.34rem .8rem; cursor:pointer}
+  background:var(--blue); border:2px solid #fff; padding:.36rem .8rem; cursor:pointer}
 
-@media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important; animation:none !important}
+  .card .poster{transform:none !important}
+}
 </style>
 </head>
 <body>
 
+<div class="bulbs" id="bulbsTop" aria-hidden="true"></div>
+
 <header class="masthead">
-  <div class="wordmark"><span class="cue" aria-hidden="true"></span> MovieChat</div>
+  <span class="reel" aria-hidden="true"></span>
+  <div class="wordmark"><span class="mark">MovieChat</span></div>
   <span class="spacer"></span>
-  <button class="ghost" id="themeBtn" type="button">Theme</button>
+  <button class="switch" id="themeBtn" type="button">House Lights</button>
 </header>
 
-<section class="marquee">
-  <div class="marquee-inner">
-    <p class="eyebrow">Natural-language film &amp; series discovery</p>
-    <h1>Say what you feel like. <em>Get the reel.</em></h1>
-    <p class="lede">Genre, mood, era, language, a director, or simply &ldquo;like&nbsp;X&rdquo; &mdash; the engine reads it locally and ranks what matches.</p>
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
 
-    <form class="askbar" id="askForm">
-      <input id="q" value="shah rukh khan movies" spellcheck="false"
-             autocomplete="off" aria-label="What do you want to watch">
-      <button class="go" id="goBtn" type="submit">Search</button>
-    </form>
+<section class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">Be kind, rewind &middot; no membership card needed</p>
+    <h1>Tell us the vibe.<br><span class="hl">We'll cue the tape.</span></h1>
+    <p class="lede">Genre, mood, decade, a director's name, or just &ldquo;like&nbsp;X&rdquo; &mdash; say it plain. A local engine reads it and ranks what matches. No AI middleman, no waiting on someone else's server.</p>
+
+    <div class="ticket-window">
+      <form class="askbar" id="askForm">
+        <input id="q" value="" placeholder="e.g. highest rated horror movies" spellcheck="false"
+               autocomplete="off" aria-label="What do you want to watch">
+        <button class="go" id="goBtn" type="submit">Search</button>
+      </form>
+    </div>
 
     <div class="examples">
       <button class="example" type="button">highest rated horror movies</button>
@@ -351,15 +422,15 @@ img{max-width:100%; display:block}
   <div id="noticeSlot"></div>
   <div id="featureSlot"></div>
   <div class="sec-head" id="restHeadWrap" hidden>
-    <h2 id="restHead">More matches</h2><span class="line"></span>
+    <h2 id="restHead">More on the shelf</h2><span class="line"></span>
   </div>
   <ul class="grid" id="grid"></ul>
   <div class="more" id="moreWrap" hidden>
     <button class="btn" id="moreBtn" type="button">Load more</button>
   </div>
   <div class="foot">
-    <span>Data — TMDB &amp; Watchmode</span>
-    <span>Parsed locally · no LLM</span>
+    <span><span class="brand">MovieChat</span> &middot; data from TMDB &amp; Watchmode</span>
+    <span>Parsed locally. No LLM, no waiting.</span>
   </div>
 </main>
 
@@ -382,28 +453,59 @@ const moreWrap = $("moreWrap"), moreBtn = $("moreBtn");
 const restHeadWrap = $("restHeadWrap"), restHead = $("restHead");
 const goBtn = $("goBtn");
 
+const REDUCED_MOTION = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const COARSE_POINTER = matchMedia("(pointer: coarse)").matches;
+
 const state = { items: [], page: 0, pageSize: 9, loading: false, lastKey: null };
 
 const tier = s => s >= 75 ? "high" : s >= 60 ? "mid" : "low";
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
   ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 
-/* Deterministic placeholder art when TMDB has no poster, so the grid keeps
-   its rhythm instead of collapsing into empty boxes. */
+/* ---------- decor: chase-light bulbs + marquee ticker ---------- */
+(function buildBulbs(){
+  const strip = $("bulbsTop");
+  for (let i = 0; i < 90; i++){
+    const b = document.createElement("i");
+    b.style.animationDelay = `${(i % 18) * -0.09}s`;
+    strip.appendChild(b);
+  }
+})();
+(function buildTicker(){
+  const phrases = [
+    "HIGHEST RATED HORROR", "KOREAN THRILLERS · 2010s", "FEEL GOOD, HOLD THE ROMANCE",
+    "DIRECTED BY CHRISTOPHER NOLAN", "MIND BENDING SCI-FI · 90s", "TOP 5 HEIST MOVIES",
+    "SERIES LIKE SQUID GAME", "ACTION BUT NOT HORROR", "SHAH RUKH KHAN, ALL ERAS",
+    "BE KIND, REWIND", "NO MEMBERSHIP CARD NEEDED"
+  ];
+  const track = $("tickerTrack");
+  const html = phrases.map(p => `<span>${esc(p)}</span>`).join("");
+  track.innerHTML = html + html; // duplicated once for a seamless loop
+})();
+
+/* Deterministic placeholder art + rest-angle when TMDB has no poster or for
+   every poster's at-rest tilt, so the wall doesn't line up in a flat grid. */
 function tint(title){
   let h = 0;
   for (const ch of String(title)) h = (h * 31 + ch.charCodeAt(0)) % 360;
-  return `linear-gradient(155deg, hsl(${h} 32% 22%), hsl(${(h + 38) % 360} 40% 42%))`;
+  return `linear-gradient(155deg, hsl(${h} 34% 24%), hsl(${(h + 38) % 360} 42% 44%))`;
+}
+function restAngle(title){
+  let h = 7;
+  for (const ch of String(title)) h = (h * 17 + ch.charCodeAt(0)) % 1000;
+  return ((h / 1000) * 8 - 4).toFixed(2); // -4deg .. 4deg
 }
 
-function posterHTML(it, showBadge){
+function posterHTML(it, showSeal, pin){
   const inner = it.poster_url
     ? `<img src="${esc(it.poster_url)}" alt="" loading="lazy">`
     : `<span class="fallback">${esc(it.title)}</span>`;
-  const badge = showBadge && it.rating
-    ? `<span class="score-badge">★ ${Number(it.rating).toFixed(1)}</span>` : "";
+  const seal = showSeal && it.rating
+    ? `<span class="seal"><b>${Number(it.rating).toFixed(1)}</b><small>TMDB</small></span>` : "";
+  const pinDot = pin ? `<span class="pin" aria-hidden="true"></span>` : "";
   const bg = it.poster_url ? "" : ` style="background:${tint(it.title)}"`;
-  return `<div class="poster"${bg}>${inner}${badge}</div>`;
+  const rot = REDUCED_MOTION ? "0" : restAngle(it.title);
+  return `<div class="frame"><div class="poster" data-rest="${rot}" style="--rest-rot:${rot}deg"${bg}>${pinDot}${inner}${seal}</div></div>`;
 }
 
 function currentKey(){
@@ -419,7 +521,7 @@ const KIND_LABEL = {
 
 function renderTags(intent){
   if (!intent){ tagsEl.innerHTML = ""; return; }
-  const parts = [];
+  const parts = [`<span class="tags-label">Your ticket reads</span>`];
   for (const m of intent.matched_terms || []){
     const label = KIND_LABEL[m.kind] || m.kind;
     const body = m.kind === "exclude_genre" ? `<s>${esc(m.term)}</s>` : esc(m.term);
@@ -432,16 +534,38 @@ function renderTags(intent){
   if (intent.min_votes){
     parts.push(`<span class="tag tag--sort"><b>quality floor</b> ${intent.min_votes}+ votes</span>`);
   }
-  if (!parts.length) parts.push(`<span class="tag"><b>read as</b> free text</span>`);
+  if (parts.length === 1) parts.push(`<span class="tag"><b>read as</b> free text</span>`);
   tagsEl.innerHTML = parts.join("");
 }
 
 function skeletons(n){
   return Array.from({ length: n }, () => `
     <li class="card skel">
-      <div class="poster"></div>
+      <div class="frame"><div class="poster"></div></div>
       <div class="line"></div><div class="line short"></div>
     </li>`).join("");
+}
+
+/* ---------- cursor-tilt interaction for the poster wall ---------- */
+function attachTilt(el, maxDeg){
+  if (REDUCED_MOTION || COARSE_POINTER) return;
+  const rest = parseFloat(el.dataset.rest || "0");
+  el.addEventListener("mousemove", e => {
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    const rx = (-py * maxDeg).toFixed(2);
+    const ry = (px * maxDeg).toFixed(2);
+    el.style.transform = `perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg) rotate(${rest}deg) scale(1.045)`;
+    el.style.boxShadow = "var(--shadow-poster-hi)";
+  });
+  el.addEventListener("mouseleave", () => {
+    el.style.transform = `rotate(${rest}deg)`;
+    el.style.boxShadow = "";
+  });
+}
+function wireTilts(root, maxDeg){
+  root.querySelectorAll(".poster[data-rest]").forEach(el => attachTilt(el, maxDeg));
 }
 
 function render(){
@@ -458,14 +582,13 @@ function render(){
 
   featureSlot.innerHTML = `
     <article class="feature">
-      ${posterHTML(lead, false)}
+      ${posterHTML(lead, false, false)}
       <div class="body">
-        ${lead.is_exact_match ? '<span class="flag">Exact match</span>'
-          : relevance ? '<span class="flag">Top match</span>' : ""}
+        <span class="flag">New Release</span>
         <h3>${esc(lead.title)}</h3>
         <p class="synopsis">${esc(lead.overview || "No synopsis available.")}</p>
         <div class="specs">
-          ${lead.rating ? `<span><b>★ ${Number(lead.rating).toFixed(1)}</b> TMDB</span><span class="dot">/</span>` : ""}
+          ${lead.rating ? `<span><b>&#9733; ${Number(lead.rating).toFixed(1)}</b> TMDB</span><span class="dot">/</span>` : ""}
           <span>${esc((lead.release_date || lead.first_air_date || "—").slice(0,4))}</span>
           <span class="dot">/</span>
           <span>${esc((lead.language || "—").toUpperCase())}</span>
@@ -479,7 +602,7 @@ function render(){
           <div class="meter-track">
             <div class="meter-fill" data-tier="${tier(lead.score)}" style="width:${lead.score}%"></div>
           </div>
-          <span class="meter-num">${lead.score} match</span>
+          <span class="meter-num">${lead.score} / 100 match</span>
         </div>
         <div class="actions">
           ${lead.trailer_url
@@ -493,28 +616,32 @@ function render(){
   gridEl.innerHTML = rest.map((f, i) => `
     <li><button class="card" style="animation-delay:${Math.min(i,12)*45}ms"
         data-like="${esc(f.title)}" ${f.trailer_url ? `data-trailer="${esc(f.trailer_url)}"` : ""}>
-      ${posterHTML(f, true)}
+      ${posterHTML(f, true, true)}
       <h4 class="card-title">${esc(f.title)}</h4>
       <div class="card-meta">
         <span>${esc((f.release_date || f.first_air_date || "—").slice(0,4))}</span>
-        <span>·</span><span>${esc((f.language || "—").toUpperCase())}</span>
+        <span>&middot;</span><span>${esc((f.language || "—").toUpperCase())}</span>
       </div>
-      <div class="card-bar"><i style="width:${f.score}%;background:var(--tier-${tier(f.score)})"></i></div>
+      <div class="card-bar"><i data-tier="${tier(f.score)}" style="width:${f.score}%"></i></div>
     </button></li>`).join("");
 
   restHeadWrap.hidden = rest.length === 0;
   moreWrap.hidden = false;
   countEl.textContent = `${items.length} title${items.length === 1 ? "" : "s"}`;
+
+  wireTilts(featureSlot, 6);
+  wireTilts(gridEl, 11);
 }
 
-function showNotice(title, body){
-  noticeSlot.innerHTML = `<div class="notice"><h3>${esc(title)}</h3><p>${esc(body)}</p></div>`;
+function showNotice(eyebrow, title, body){
+  noticeSlot.innerHTML = `<div class="notice"><p class="eyebrow">${esc(eyebrow)}</p>
+    <h3>${esc(title)}</h3><p>${esc(body)}</p></div>`;
 }
 
 async function search(reset){
   if (state.loading) return;
   const text = qEl.value.trim();
-  if (!text){ showNotice("Nothing to search", "Describe what you feel like watching."); return; }
+  if (!text){ showNotice("Box office closed", "Nothing to search", "Describe what you feel like watching."); return; }
 
   state.loading = true;
   goBtn.disabled = true;
@@ -550,7 +677,7 @@ async function search(reset){
       const detail = Array.isArray(data.detail)
         ? (data.detail[0] && data.detail[0].msg) : data.detail;
       gridEl.innerHTML = "";
-      showNotice("That search didn’t go through", detail || `Server responded ${res.status}.`);
+      showNotice("Projector trouble", "That search didn’t go through", detail || `Server responded ${res.status}.`);
       if (!reset) state.page -= 1;
       return;
     }
@@ -562,7 +689,8 @@ async function search(reset){
 
     if (!state.items.length){
       gridEl.innerHTML = "";
-      featureSlot.innerHTML = `<div class="empty"><strong>Nothing matched</strong>
+      featureSlot.innerHTML = `<div class="empty"><p class="eyebrow">Sold out</p>
+        <strong>Nothing matched</strong>
         Try a broader description, or clear a filter.</div>`;
       moreWrap.hidden = true;
       countEl.textContent = "0 titles";
@@ -576,7 +704,8 @@ async function search(reset){
     render();
   } catch (err){
     gridEl.innerHTML = "";
-    showNotice("Can’t reach the server", "The MovieChat backend didn’t respond. Check that it’s running, then try again.");
+    showNotice("Projector trouble", "Can’t reach the server",
+      "The MovieChat backend didn’t respond. Check that it’s running, then try again.");
     if (!reset) state.page -= 1;
   } finally {
     state.loading = false;
@@ -657,7 +786,12 @@ try {
   if (saved) document.documentElement.setAttribute("data-theme", saved);
 } catch (_){}
 
-search(true);
+/* No auto-search on load: the ticket window opens empty so the first
+   thing on screen is the visitor's own request, not a canned example. */
+featureSlot.innerHTML = `<div class="empty"><p class="eyebrow">Before the show</p>
+  <strong>What are you in the mood for?</strong>
+  Type a genre, a mood, a director, or &ldquo;like X&rdquo; above — or tap one of the examples.</div>`;
+qEl.focus();
 </script>
 </body>
 </html>
