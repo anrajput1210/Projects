@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MovieChat</title>
+<title>MovieChat AI</title>
 <style>
 /* ============================================================
    Apple-style interface: system palette, translucent materials,
@@ -108,10 +108,14 @@ button{touch-action:manipulation}
   gap:.6rem; padding:0 clamp(1rem,4vw,2rem);
   background:var(--nav-bg); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%);
   border-bottom:.5px solid var(--hairline)}
-.mark{display:flex; align-items:center; gap:.55rem; text-decoration:none; color:var(--label)}
-.mark-icon{display:flex; align-items:center; justify-content:center; width:28px; height:28px;
-  border-radius:8px; background:var(--blue); color:#fff; flex:none}
-.mark-text{font-size:1.06rem; font-weight:700; letter-spacing:-.012em}
+.mark{display:flex; align-items:center; gap:.5rem; text-decoration:none; color:var(--label)}
+.mark-icon{display:flex; align-items:center; justify-content:center; width:32px; height:32px; flex:none}
+.mark-icon svg{width:100%; height:100%; display:block}
+.mark-text{font-size:1.06rem; font-weight:800; letter-spacing:-.012em}
+.mark-text .ai{color:var(--red)}
+@media (prefers-color-scheme:dark){ .mark-text .ai{color:var(--star)} }
+:root[data-theme="dark"] .mark-text .ai{color:var(--star)}
+:root[data-theme="light"] .mark-text .ai{color:var(--red)}
 .spacer{margin-left:auto}
 .icon-btn{display:flex; align-items:center; justify-content:center; width:34px; height:34px;
   border-radius:50%; border:none; background:var(--fill-3); color:var(--label); cursor:pointer}
@@ -334,11 +338,38 @@ button{touch-action:manipulation}
 <body>
 
 <header class="navbar">
-  <a class="mark press" href="/" aria-label="MovieChat home">
+  <a class="mark press" href="/" aria-label="MovieChat AI home">
     <span class="mark-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="15" height="15"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+      <svg viewBox="0 0 64 64">
+        <ellipse cx="32" cy="58" rx="15" ry="2.5" fill="#000" opacity=".12"/>
+        <polygon points="19,52 13,58 21,57" fill="#1E1B3A"/>
+        <clipPath id="mcBucket"><polygon points="17,28 47,28 43,54 21,54"/></clipPath>
+        <g clip-path="url(#mcBucket)">
+          <rect x="17" y="28" width="6" height="26" fill="#FF4B3E"/>
+          <rect x="23" y="28" width="6" height="26" fill="#FFFFFF"/>
+          <rect x="29" y="28" width="6" height="26" fill="#FF4B3E"/>
+          <rect x="35" y="28" width="6" height="26" fill="#FFFFFF"/>
+          <rect x="41" y="28" width="6" height="26" fill="#FF4B3E"/>
+        </g>
+        <polygon points="17,28 47,28 43,54 21,54" fill="none" stroke="#1E1B3A" stroke-width="2" stroke-linejoin="round"/>
+        <g fill="#F7E7C0" stroke="#1E1B3A" stroke-width="2" stroke-linejoin="round">
+          <circle cx="19" cy="25" r="7.5"/>
+          <circle cx="27" cy="20" r="8.5"/>
+          <circle cx="37" cy="20" r="8.5"/>
+          <circle cx="45" cy="25" r="7.5"/>
+          <circle cx="32" cy="17" r="8"/>
+        </g>
+        <circle cx="25" cy="37" r="6.5" fill="#fff" stroke="#1E1B3A" stroke-width="2"/>
+        <circle cx="39" cy="37" r="6.5" fill="#fff" stroke="#1E1B3A" stroke-width="2"/>
+        <circle cx="25.5" cy="38" r="2.8" fill="#1E1B3A"/>
+        <circle cx="39.5" cy="38" r="2.8" fill="#1E1B3A"/>
+        <circle cx="27" cy="35.5" r="1" fill="#fff"/>
+        <circle cx="41" cy="35.5" r="1" fill="#fff"/>
+        <path d="M25,46 Q32,50 39,46" fill="none" stroke="#1E1B3A" stroke-width="2" stroke-linecap="round"/>
+        <rect x="44" y="9" width="6" height="6" fill="#33C7E0" transform="rotate(45 47 12)"/>
+      </svg>
     </span>
-    <span class="mark-text">MovieChat</span>
+    <span class="mark-text">MovieChat <span class="ai">AI</span></span>
   </a>
   <span class="spacer"></span>
   <button class="icon-btn press" id="themeBtn" type="button" aria-label="Toggle appearance">
@@ -431,7 +462,7 @@ button{touch-action:manipulation}
     <button class="btn press" id="moreBtn" type="button">Load more</button>
   </div>
   <div class="foot">
-    <span><b>MovieChat</b> &middot; data from TMDB &amp; Watchmode</span>
+    <span><b>MovieChat AI</b> &middot; data from TMDB &amp; Watchmode</span>
     <span>Parsed locally, no LLM involved.</span>
   </div>
 </main>
