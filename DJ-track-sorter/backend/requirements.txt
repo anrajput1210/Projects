@@ -1,0 +1,12 @@
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+python-multipart==0.0.32
+pydantic==2.13.4
+
+# Audio analysis. Sub-dependencies (numba, scipy, scikit-learn, ...) are left
+# unpinned so pip can resolve wheels compatible with the deploy target's
+# Python version.
+librosa==0.11.0
+numpy==2.4.6
+soundfile==0.14.0
+audioread==3.1.0
