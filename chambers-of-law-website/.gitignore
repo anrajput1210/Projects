@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
 *.log
+
+# Share/deploy bundles built from dist/ — regenerate rather than version them
+*.zip
