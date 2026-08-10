@@ -38,9 +38,16 @@ src/
   partials/                # head.html, header.html (nav + mega-menu), footer.html, disclaimer-modal.html
   pages/                    # one file per page — see "How pages work" below
 assets/
-  css/                      # tokens.css (design tokens), layout.css (base + grid), components.css (buttons, cards, nav, forms...)
-  js/main.js                # nav toggle, mega-menu, FAQ accordion, scroll-reveal, disclaimer modal, contact form submit
+  css/
+    tokens.css              # design tokens (colour, type, spacing, radius, motion)
+    layout.css              # reset, base typography, grid, section rhythm, page templates
+    components.css          # buttons, cards, nav/mega-menu, footer, accordion, forms, modal
+    assistant.css           # the Legal Assistant section shell (see below)
+    animations.css          # motion layer — loaded last so it can refine resting styles
+  js/main.js                # nav toggle, mega-menu, FAQ accordion, scroll-reveal + stagger,
+                            # stat count-up, scroll progress, hero parallax, disclaimer modal, form submit
   icons/                    # icons.svg (sprite), logo.svg (standalone wordmark), favicon.svg
+  img/                      # authored SVG artwork (see "Artwork" below)
 dist/                       # generated output — do not hand-edit, it's overwritten on every build
 ```
 
@@ -75,6 +82,55 @@ This site was built with **entirely original placeholder content** (drafted from
 6. **Blog articles.** The three blog posts are original commentary on real, publicly reported disputes/policy topics (Nestlé/KitKat, Indian patent filing trends, Section 3(d) and compulsory licensing) — reviewed for general accuracy but not vetted as legal-grade citations. Have an Indian-qualified advocate review before publishing, especially the Acts/Rules pages and any process/timeline claims.
 7. **Canonical domain.** `build.js` hardcodes `https://www.chambersoflaw.co.in` as the site's canonical URL base (used for `<link rel="canonical">` and Open Graph tags) — update the `SITE_URL` constant near the top of `build.js` if that's not the final domain.
 8. **Dates.** Privacy Policy and Terms of Service both have a `[Date to be set by the firm before publishing]` placeholder for "last updated."
+
+## Legal Assistant
+
+The homepage has a **Legal Assistant** section (`#legal-assistant`, styled by `assets/css/assistant.css`). It ships as a **shell only** — the panel frame, heading, disclaimer strip, and an empty mount point. There is deliberately no chatbot wired up yet.
+
+To add one, render it into the mount point and delete the placeholder:
+
+```html
+<!-- src/pages/index.html -->
+<div id="legal-assistant-mount">
+  <!-- delete .assistant-placeholder, mount your widget here -->
+</div>
+```
+
+```js
+// or from JS, wherever your widget initialises
+const mount = document.getElementById("legal-assistant-mount");
+mount.innerHTML = "";           // clear the "coming soon" placeholder
+myChatbot.render(mount);
+```
+
+The mount is a flex container filling the remaining panel height, so a child with `flex: 1` will fill it correctly.
+
+**Two things to keep when you wire a real assistant in:**
+
+1. **Leave the disclaimer strip in place.** Under Bar Council of India advertising and solicitation rules, an assistant on a law firm's site should present general information only and must not read as legal advice or as creating an attorney–client relationship.
+2. **Be careful with an LLM-backed bot on a static site.** There's no backend here, so calling a model API from the page would expose your API key to anyone who views source. If you want a generative assistant, route it through a serverless function (Netlify/Vercel function, Cloudflare Worker) that holds the key server-side — and have an advocate review the system prompt and its guardrails before it goes live.
+
+## Artwork
+
+All imagery is original SVG authored for this site — there are no photographs or stock images, and nothing depicts a real person:
+
+| File | Used on |
+| --- | --- |
+| `assets/img/hero-emblem.svg` | Homepage hero — scales of justice within orbiting rings |
+| `assets/img/cover-trademark.svg` | Blog cover — the KitKat/shape-mark article |
+| `assets/img/cover-patents.svg` | Blog cover — the patent filing trends article |
+| `assets/img/cover-policy.svg` | Blog cover — the pharma patent policy article |
+| `assets/img/network-arc.svg` | Global Network page — Manchester ↔ Ludhiana arc |
+
+Each file carries its own CSS animation *inside* the SVG (which still runs when referenced via `<img>`) and its own `prefers-reduced-motion` guard, so they hold still for visitors who ask for reduced motion. They're vector, so they stay sharp at any size and need no responsive image sizes.
+
+## Motion
+
+`assets/css/animations.css` plus the motion code in `main.js` provide: a scroll progress bar, a condensing header, hero entrance and pointer parallax, scroll-reveal with per-row stagger, count-up on the stat numbers, mega-menu cascade, and hover states throughout.
+
+Reveal animation is applied **automatically** — `main.js` tags a list of selectors (`.card`, `.section-head`, `.list-row`, `.blog-card`, and so on) with the `reveal` class, so new pages animate without adding classes by hand. Add `class="reveal"` manually only for an element outside that list.
+
+Every effect is disabled under `prefers-reduced-motion: reduce`, and content is guaranteed visible rather than stuck at `opacity: 0` (verified in QA).
 
 ## Deploying
 

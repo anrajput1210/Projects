@@ -1,0 +1,84 @@
+/* ==========================================================================
+   Chambers of Law — Legal Assistant section
+   This is the styled shell + mount point only. The chatbot itself is added
+   later: render it into #legal-assistant-mount (see README).
+   ========================================================================== */
+
+.assistant-grid{
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,420px);
+  gap: var(--space-2xl); align-items: center;
+}
+@media (max-width: 900px){ .assistant-grid{ grid-template-columns: 1fr; gap: var(--space-xl); } }
+
+.assistant-points{ display: flex; flex-direction: column; gap: var(--space-sm); margin-top: var(--space-md); }
+.assistant-point{ display: flex; gap: .7rem; align-items: flex-start; }
+.assistant-point svg{ width: 18px; height: 18px; color: var(--color-gold); flex: none; margin-top: .2rem; }
+.assistant-point h3{ font-size: .98rem; margin-bottom: .15rem; }
+.assistant-point p{ font-size: var(--fs-small); color: var(--color-text-on-dark-muted); margin: 0; }
+
+/* ---------------- The panel shell ---------------- */
+.assistant-shell{
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--color-navy); color: var(--color-text-on-dark);
+  border: 1px solid var(--color-border-dark); border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0,0,0,.45), 0 4px 14px rgba(0,0,0,.25);
+  min-height: 420px;
+}
+.assistant-head{
+  display: flex; align-items: center; gap: .7rem; flex: none;
+  padding: .95rem 1rem; border-bottom: 1px solid var(--color-border-dark);
+  background: linear-gradient(180deg, rgba(242,169,59,.10), transparent);
+}
+.assistant-avatar{
+  display: flex; align-items: center; justify-content: center; flex: none;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(242,169,59,.16); color: var(--color-gold);
+}
+.assistant-avatar svg{ width: 20px; height: 20px; }
+.assistant-head h3{ font-size: .98rem; font-weight: var(--fw-semibold); margin: 0; }
+.assistant-head p{
+  margin: .1rem 0 0; font-size: .72rem; color: var(--color-text-on-dark-muted);
+  display: flex; align-items: center; gap: .35rem;
+}
+@keyframes assistDot{ 0%,100%{ opacity: 1; } 50%{ opacity: .3; } }
+.assistant-dot{
+  width: 6px; height: 6px; border-radius: 50%; background: var(--color-gold);
+  flex: none; animation: assistDot 2.2s ease-in-out infinite;
+}
+
+.assistant-disclaimer{
+  flex: none; display: flex; gap: .5rem; align-items: flex-start; margin: 0;
+  padding: .6rem 1rem; font-size: .7rem; line-height: 1.5;
+  color: var(--color-text-on-dark-muted); background: rgba(242,169,59,.07);
+  border-bottom: 1px solid var(--color-border-dark);
+}
+.assistant-disclaimer svg{ width: 13px; height: 13px; color: var(--color-gold); flex: none; margin-top: .15rem; }
+
+/* ---------------- Mount point + its empty state ---------------- */
+#legal-assistant-mount{ flex: 1; display: flex; }
+/* The placeholder is a direct child so it can simply be deleted (or left —
+   it is replaced when a chatbot renders into the mount) once wired up. */
+.assistant-placeholder{
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .55rem; padding: var(--space-lg); text-align: center;
+  border: 1px dashed var(--color-border-dark); border-radius: var(--radius-md);
+  margin: 1rem; color: var(--color-text-on-dark-muted);
+}
+@keyframes assistPulse{ 0%,100%{ transform: scale(1); opacity: .85; } 50%{ transform: scale(1.07); opacity: 1; } }
+.assistant-placeholder .glyph{
+  display: flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(242,169,59,.12); color: var(--color-gold);
+  animation: assistPulse 3.4s ease-in-out infinite;
+}
+.assistant-placeholder .glyph svg{ width: 24px; height: 24px; }
+.assistant-placeholder strong{ color: var(--color-text-on-dark); font-size: .95rem; font-weight: var(--fw-semibold); }
+.assistant-placeholder p{ margin: 0; font-size: var(--fs-small); max-width: 30ch; }
+.assistant-placeholder code{
+  font-size: .72rem; padding: .18rem .45rem; border-radius: 5px;
+  background: rgba(255,255,255,.07); color: var(--color-gold);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .assistant-dot, .assistant-placeholder .glyph{ animation: none; }
+}

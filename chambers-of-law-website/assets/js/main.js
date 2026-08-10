@@ -79,11 +79,42 @@
   });
 })();
 
-/* ---------------- Scroll reveal ---------------- */
+/* ---------------- Scroll reveal ----------------
+   Elements can opt in by hand with class="reveal", but the selectors below
+   are also auto-tagged so every page animates consistently without each
+   template repeating the class. Siblings stagger via a --reveal-i index. */
+const REDUCED_MOTION = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 (function () {
+  const AUTO = [
+    ".section-head",
+    ".card",
+    ".list-row",
+    ".blog-card",
+    ".cta-band",
+    ".trust-bar span",
+    ".contact-info-row",
+    ".faq-item",
+    ".map-placeholder",
+    ".article-body > h2",
+    ".disclaimer-note",
+    ".assistant-shell",
+    ".assistant-point",
+  ];
+  document.querySelectorAll(AUTO.join(",")).forEach((el) => el.classList.add("reveal"));
+
+  // Stagger index is per-parent, so each row/grid cascades on its own.
+  const seen = new Map();
+  document.querySelectorAll(".reveal").forEach((el) => {
+    const parent = el.parentElement;
+    const i = seen.get(parent) || 0;
+    seen.set(parent, i + 1);
+    el.style.setProperty("--reveal-i", Math.min(i, 8));
+  });
+
   const targets = document.querySelectorAll(".reveal");
   if (!targets.length) return;
-  if (!("IntersectionObserver" in window)) {
+  if (REDUCED_MOTION || !("IntersectionObserver" in window)) {
     targets.forEach((t) => t.classList.add("is-visible"));
     return;
   }
@@ -96,9 +127,100 @@
         }
       });
     },
-    { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    { threshold: 0.12, rootMargin: "0px 0px -50px 0px" }
   );
   targets.forEach((t) => io.observe(t));
+})();
+
+/* ---------------- Count-up for stat numbers ----------------
+   Preserves any non-numeric prefix/suffix ("20+" counts to 20, keeps "+"). */
+(function () {
+  const nums = document.querySelectorAll(".stat-card .num, .hero-meta strong");
+  if (!nums.length || REDUCED_MOTION || !("IntersectionObserver" in window)) return;
+
+  const run = (el) => {
+    const raw = el.textContent.trim();
+    const match = raw.match(/^(\D*)(\d+)(.*)$/);
+    if (!match) return;
+    const [, prefix, digits, suffix] = match;
+    const target = parseInt(digits, 10);
+    if (!target) return;
+
+    const duration = 1100;
+    const start = performance.now();
+    const step = (now) => {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      el.textContent = prefix + Math.round(target * eased) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          run(entry.target);
+          io.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.6 }
+  );
+  nums.forEach((n) => io.observe(n));
+})();
+
+/* ---------------- Scroll progress bar + condensed header ---------------- */
+(function () {
+  const bar = document.getElementById("scrollProgress");
+  const header = document.querySelector(".site-header");
+  if (!bar && !header) return;
+
+  let ticking = false;
+  const update = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const y = window.scrollY;
+    if (bar) bar.style.width = (max > 0 ? (y / max) * 100 : 0) + "%";
+    if (header) header.classList.toggle("is-stuck", y > 40);
+    ticking = false;
+  };
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    },
+    { passive: true }
+  );
+  update();
+})();
+
+/* ---------------- Hero parallax (pointer-driven, desktop only) ---------------- */
+(function () {
+  const hero = document.querySelector(".hero");
+  const art = document.querySelector(".hero-art img");
+  if (!hero || REDUCED_MOTION || matchMedia("(pointer: coarse)").matches) return;
+
+  hero.addEventListener("pointermove", (e) => {
+    const r = hero.getBoundingClientRect();
+    const dx = (e.clientX - r.left) / r.width - 0.5;
+    const dy = (e.clientY - r.top) / r.height - 0.5;
+    hero.style.setProperty("--hero-shift", `translate3d(${dx * 26}px, ${dy * 18}px, 0)`);
+    if (art) {
+      art.style.setProperty("--art-x", `${dx * -18}px`);
+      art.style.setProperty("--art-y", `${dy * -12}px`);
+    }
+  });
+  hero.addEventListener("pointerleave", () => {
+    hero.style.setProperty("--hero-shift", "translate3d(0,0,0)");
+    if (art) {
+      art.style.setProperty("--art-x", "0px");
+      art.style.setProperty("--art-y", "0px");
+    }
+  });
 })();
 
 /* ---------------- Bar Council disclaimer modal ---------------- */

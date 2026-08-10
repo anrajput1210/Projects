@@ -1,0 +1,232 @@
+/* ==========================================================================
+   Chambers of Law — Motion layer
+   Loaded after layout/components so it can refine their resting styles.
+   Every effect here degrades to "no motion, still legible" under
+   prefers-reduced-motion (single guard at the bottom of the file).
+   ========================================================================== */
+
+/* ---------------- Page load ---------------- */
+@keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
+body { animation: pageIn .45s ease both; }
+
+/* ---------------- Scroll progress bar ---------------- */
+.scroll-progress{
+  position: fixed; top: 0; left: 0; height: 2px; width: 0; z-index: 120;
+  background: linear-gradient(90deg, var(--color-gold-dark), var(--color-gold), #F7C46C);
+  box-shadow: 0 0 10px rgba(242,169,59,.55);
+  transition: width .12s linear; pointer-events: none;
+}
+
+/* ---------------- Scroll reveal (stagger driven by --reveal-i) ---------------- */
+.reveal{ transition-delay: calc(var(--reveal-i, 0) * 70ms); }
+
+/* ---------------- Hero entrance ---------------- */
+@keyframes heroIn{
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: none; }
+}
+.hero-inner > *{ opacity: 0; animation: heroIn .85s var(--ease-standard) forwards; }
+.hero-inner > *:nth-child(1){ animation-delay: .10s; }
+.hero-inner > *:nth-child(2){ animation-delay: .20s; }
+.hero-inner > *:nth-child(3){ animation-delay: .32s; }
+.hero-inner > *:nth-child(4){ animation-delay: .44s; }
+.hero-inner > *:nth-child(5){ animation-delay: .56s; }
+
+/* Hero artwork column */
+.hero-grid{
+  display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr);
+  gap: var(--space-2xl); align-items: center;
+}
+.hero-art{ position: relative; justify-self: center; width: min(100%, 460px); }
+@keyframes artIn{
+  from { opacity: 0; transform: scale(.88) rotate(-6deg); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes artFloat{
+  0%,100% { transform: translate3d(var(--art-x,0),var(--art-y,0),0); }
+  50%     { transform: translate3d(var(--art-x,0), calc(var(--art-y,0px) - 14px), 0); }
+}
+.hero-art img{
+  width: 100%; height: auto;
+  animation: artIn 1.1s var(--ease-standard) .25s both, artFloat 9s ease-in-out 1.4s infinite;
+  will-change: transform;
+}
+@media (max-width: 900px){
+  .hero-grid{ grid-template-columns: 1fr; }
+  .hero-art{ display: none; }
+}
+
+/* Parallax offset applied to the hero's ambient wash by JS (--hero-shift) */
+.hero::before{
+  transform: var(--hero-shift, translate3d(0,0,0));
+  transition: transform .45s cubic-bezier(.22,1,.36,1);
+}
+
+/* ---------------- Section heading rule ---------------- */
+.section-head h2::after{
+  content: ""; display: block; width: 58px; height: 3px; margin-top: .95rem; border-radius: 2px;
+  background: linear-gradient(90deg, var(--color-gold), rgba(242,169,59,0));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .75s var(--ease-standard) .12s;
+}
+.section-head.is-visible h2::after{ transform: scaleX(1); }
+.section-head--center h2::after{
+  margin-left: auto; margin-right: auto; transform-origin: center;
+  background: linear-gradient(90deg, rgba(242,169,59,0), var(--color-gold), rgba(242,169,59,0));
+}
+
+/* ---------------- Nav ---------------- */
+.nav-link{ position: relative; }
+.nav-link::after{
+  content: ""; position: absolute; left: 0; bottom: .28rem; height: 1.5px; width: 0;
+  background: var(--color-gold); transition: width .3s var(--ease-standard);
+}
+.nav-link:hover::after, .nav-link[aria-current="page"]::after{ width: 100%; }
+@media (max-width: 980px){ .nav-link::after{ display: none; } }
+
+/* Mega-menu items cascade in */
+.mega-menu a{
+  opacity: 0; transform: translateY(7px);
+  transition: opacity .34s var(--ease-standard), transform .34s var(--ease-standard),
+              color .15s ease, background-color .15s ease;
+}
+.has-mega:hover .mega-menu a,
+.has-mega:focus-within .mega-menu a,
+.has-mega.is-open .mega-menu a{ opacity: 1; transform: none; }
+.mega-menu a:nth-child(2){ transition-delay: .04s; }
+.mega-menu a:nth-child(3){ transition-delay: .07s; }
+.mega-menu a:nth-child(4){ transition-delay: .10s; }
+.mega-menu a:nth-child(5){ transition-delay: .13s; }
+.mega-menu a:nth-child(6){ transition-delay: .16s; }
+.mega-menu a:nth-child(7){ transition-delay: .19s; }
+.mega-menu a:nth-child(8){ transition-delay: .22s; }
+.mega-menu a:nth-child(9){ transition-delay: .25s; }
+.mega-menu a:hover{ transform: translateX(3px); }
+.mega-menu a svg{ transition: transform .25s var(--ease-standard); }
+.mega-menu a:hover svg{ transform: scale(1.18); }
+
+/* Header condenses once the page scrolls */
+.site-header{ transition: height .3s var(--ease-standard), background-color .3s ease, box-shadow .3s ease; }
+.site-header.is-stuck{ height: 68px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+
+/* ---------------- Cards ---------------- */
+.card{ position: relative; }
+.card::after{
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(242,169,59,0);
+  transition: box-shadow .35s var(--ease-standard);
+}
+.card:hover::after{ box-shadow: inset 0 0 0 1px rgba(242,169,59,.55); }
+.card:hover{ transform: translateY(-6px); }
+.card-icon{ transition: transform .4s var(--ease-standard), background-color .3s ease; }
+.card:hover .card-icon{ transform: translateY(-2px) scale(1.08) rotate(-4deg); }
+
+/* Stat numbers */
+.stat-card .num{ transition: color .3s ease; font-variant-numeric: tabular-nums; }
+.stat-card:hover .num{ color: var(--color-gold); }
+
+/* Team badge */
+.team-badge{ transition: transform .4s var(--ease-standard), box-shadow .4s var(--ease-standard); }
+.team-card:hover .team-badge{ transform: scale(1.07); box-shadow: 0 8px 26px rgba(242,169,59,.28); }
+
+/* Blog cards */
+.blog-card figure{ overflow: hidden; }
+.blog-card figure img{
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .6s var(--ease-standard), filter .5s ease;
+}
+.blog-card:hover figure img{ transform: scale(1.06); filter: saturate(1.15); }
+.blog-card h3{ transition: color .22s ease; }
+.blog-card:hover h3{ color: var(--color-gold-dark); }
+
+/* List rows */
+.list-row{ transition: padding-left .3s var(--ease-standard), background-color .3s ease; position: relative; }
+.list-row::before{
+  content: ""; position: absolute; left: 0; top: 50%; width: 0; height: 1px;
+  background: var(--color-gold); transform: translateY(-50%);
+  transition: width .35s var(--ease-standard);
+}
+.list-row:hover{ padding-left: 1.1rem; }
+.list-row:hover::before{ width: .7rem; }
+.list-row h3{ transition: color .22s ease; }
+.list-row:hover h3{ color: var(--color-gold-dark); }
+.section--dark .list-row:hover h3, .section--navy .list-row:hover h3{ color: var(--color-gold); }
+.list-row .idx{ transition: transform .3s var(--ease-standard); }
+.list-row:hover .idx{ transform: translateY(-2px); }
+
+/* Link cards */
+.link-card{ transition: transform .28s var(--ease-standard), border-color .28s ease, background-color .28s ease; }
+.link-card:hover{ transform: translateX(4px); }
+.link-card svg{ transition: transform .28s var(--ease-standard); }
+.link-card:hover svg{ transform: translateX(3px); }
+
+/* Trust bar */
+.trust-bar span{ transition: color .25s ease, transform .25s var(--ease-standard); }
+.trust-bar span:hover{ color: var(--color-gold); transform: translateY(-2px); }
+
+/* ---------------- Buttons ---------------- */
+.btn{ position: relative; overflow: hidden; }
+.btn > *{ position: relative; z-index: 1; }
+.btn svg{ transition: transform .3s var(--ease-standard); }
+.btn:hover svg{ transform: translateX(3px); }
+
+/* shine sweep across primary CTAs */
+.btn-liquid-glass::after, .btn-solid::after{
+  content: ""; position: absolute; top: 0; left: -140%; width: 55%; height: 100%; z-index: 0;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.42), transparent);
+  transform: skewX(-18deg); transition: left .75s var(--ease-standard);
+}
+.btn-liquid-glass:hover::after, .btn-solid:hover::after{ left: 145%; }
+
+/* ---------------- FAQ ---------------- */
+.faq-q .num{ transition: transform .35s var(--ease-standard), background-color .3s ease, color .3s ease; }
+.faq-item.is-open .faq-q .num{ transform: scale(1.1); background: var(--color-gold); color: var(--color-ink); }
+.faq-q{ transition: color .2s ease; }
+.faq-q:hover{ color: var(--color-gold-dark); }
+.section--dark .faq-q:hover, .section--navy .faq-q:hover{ color: var(--color-gold); }
+.faq-a-inner{ opacity: 0; transform: translateY(-6px); transition: opacity .3s ease .06s, transform .3s var(--ease-standard) .06s; }
+.faq-item.is-open .faq-a-inner{ opacity: 1; transform: none; }
+
+/* ---------------- Forms ---------------- */
+.field input, .field textarea{ transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease; }
+.field input:focus, .field textarea:focus{ box-shadow: 0 0 0 4px rgba(242,169,59,.14); }
+.field label{ transition: color .25s ease; }
+.field:focus-within label{ color: var(--color-gold); }
+@keyframes statusIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.form-status.is-success, .form-status.is-error{ animation: statusIn .35s var(--ease-standard) both; }
+
+/* ---------------- Contact / misc ---------------- */
+.contact-info-row svg{ transition: transform .3s var(--ease-standard); }
+.contact-info-row:hover svg{ transform: scale(1.15) translateY(-1px); }
+.footer-social a{ transition: transform .28s var(--ease-standard), background-color .25s ease, color .25s ease; }
+.footer-social a:hover{ transform: translateY(-3px); }
+.footer-col a{ transition: color .2s ease, padding-left .25s var(--ease-standard); }
+.footer-col a:hover{ padding-left: 4px; }
+.brand svg{ transition: transform .5s var(--ease-standard); }
+.brand:hover svg{ transform: rotate(-8deg) scale(1.06); }
+
+/* CTA band sheen */
+.cta-band{ position: relative; overflow: hidden; }
+.cta-band::before{
+  content: ""; position: absolute; inset: -40% -10% auto auto; width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(242,169,59,.16), transparent 68%);
+  pointer-events: none;
+}
+
+/* ---------------- Reduced motion ---------------- */
+@media (prefers-reduced-motion: reduce){
+  body{ animation: none; }
+  .hero-inner > *{ opacity: 1; animation: none; }
+  .hero-art img{ animation: none; }
+  .hero::before{ transition: none; transform: none !important; }
+  .scroll-progress{ transition: none; }
+  .section-head h2::after{ transform: scaleX(1); transition: none; }
+  .mega-menu a{ opacity: 1; transform: none; transition: none; }
+  .card:hover, .link-card:hover, .list-row:hover, .footer-social a:hover,
+  .trust-bar span:hover, .footer-col a:hover{ transform: none; }
+  .card:hover .card-icon, .team-card:hover .team-badge, .blog-card:hover figure img,
+  .btn:hover svg, .link-card:hover svg, .mega-menu a:hover svg{ transform: none; }
+  .btn-liquid-glass::after, .btn-solid::after{ display: none; }
+  .list-row:hover{ padding-left: 0; }
+  .faq-a-inner{ opacity: 1; transform: none; }
+}

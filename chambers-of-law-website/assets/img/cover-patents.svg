@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Abstract illustration: rising columns over a blueprint grid, representing patent filing growth">
+  <defs>
+    <linearGradient id="ptBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#232D40"/>
+      <stop offset="100%" stop-color="#0B0E14"/>
+    </linearGradient>
+    <linearGradient id="ptGold" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#D4922A"/>
+      <stop offset="100%" stop-color="#F7C46C"/>
+    </linearGradient>
+    <style>
+      .pt-col { transform-origin: 50% 100%; animation: ptGrow 7s ease-in-out infinite; }
+      .pt-c2 { animation-delay: .5s; } .pt-c3 { animation-delay: 1s; }
+      .pt-c4 { animation-delay: 1.5s; } .pt-c5 { animation-delay: 2s; }
+      .pt-spark { animation: ptTw 3.6s ease-in-out infinite; }
+      @keyframes ptGrow { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.06); } }
+      @keyframes ptTw { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+      @media (prefers-reduced-motion: reduce) { .pt-col, .pt-spark { animation: none; } }
+    </style>
+  </defs>
+  <rect width="640" height="400" fill="url(#ptBg)"/>
+  <g stroke="#F2A93B" stroke-opacity=".07" stroke-width="1">
+    <path d="M0 80h640M0 160h640M0 240h640M0 320h640M80 0v400M240 0v400M400 0v400M560 0v400"/>
+  </g>
+
+  <!-- rising columns -->
+  <g>
+    <rect class="pt-col"          x="150" y="252" width="46" height="76"  rx="7" fill="#2B3852" stroke="#F2A93B" stroke-opacity=".3"/>
+    <rect class="pt-col pt-c2"    x="212" y="220" width="46" height="108" rx="7" fill="#2B3852" stroke="#F2A93B" stroke-opacity=".35"/>
+    <rect class="pt-col pt-c3"    x="274" y="184" width="46" height="144" rx="7" fill="#33415E" stroke="#F2A93B" stroke-opacity=".4"/>
+    <rect class="pt-col pt-c4"    x="336" y="146" width="46" height="182" rx="7" fill="url(#ptGold)" opacity=".85"/>
+    <rect class="pt-col pt-c5"    x="398" y="106" width="46" height="222" rx="7" fill="url(#ptGold)"/>
+  </g>
+  <path d="M328 328h180" stroke="#F2A93B" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
+  <path d="M132 328h376" stroke="#F2A93B" stroke-opacity=".25" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- trend arrow -->
+  <path d="M150 214 L 240 182 L 300 150 L 360 112 L 424 74" fill="none" stroke="#F7C46C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 8" opacity=".8"/>
+  <path d="M404 68h24v24" fill="none" stroke="#F7C46C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+
+  <circle class="pt-spark" cx="96" cy="96" r="3" fill="#F7C46C"/>
+  <circle class="pt-spark" cx="540" cy="300" r="2.4" fill="#F7C46C"/>
+</svg>
