@@ -8,10 +8,37 @@ async function parseJsonOrThrow(response) {
   return response.json();
 }
 
-export async function uploadTracks(files) {
+export async function checkHealth() {
+  const response = await fetch(`${API_BASE_URL}/api/health`);
+  if (!response.ok) throw new Error(`status ${response.status}`);
+  return response.json().catch(() => ({}));
+}
+
+export async function uploadTracks(files, onProgress) {
   const formData = new FormData();
   for (const file of files) {
     formData.append("files", file);
+  }
+
+  if (onProgress && typeof XMLHttpRequest !== "undefined") {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `${API_BASE_URL}/api/upload`);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) onProgress(e.loaded / e.total);
+      };
+      xhr.onload = () => {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (xhr.status >= 200 && xhr.status < 300) resolve(data.tracks);
+          else reject(new Error(data.detail || `Request failed with status ${xhr.status}`));
+        } catch {
+          reject(new Error(`Request failed with status ${xhr.status}`));
+        }
+      };
+      xhr.onerror = () => reject(new Error("Upload failed"));
+      xhr.send(formData);
+    });
   }
 
   const response = await fetch(`${API_BASE_URL}/api/upload`, {
@@ -83,9 +110,9 @@ async function downloadExport(path, tracks, playlistName, fallbackFilename) {
 }
 
 export function exportRekordboxXml(tracks, playlistName) {
-  return downloadExport("/api/export/rekordbox", tracks, playlistName, "dj-track-sorter-playlist.xml");
+  return downloadExport("/api/export/rekordbox", tracks, playlistName, "cratewheel-playlist.xml");
 }
 
 export function exportM3u(tracks, playlistName) {
-  return downloadExport("/api/export/m3u", tracks, playlistName, "dj-track-sorter-playlist.m3u");
+  return downloadExport("/api/export/m3u", tracks, playlistName, "cratewheel-playlist.m3u");
 }

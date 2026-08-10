@@ -1,191 +1,130 @@
+@import "@fontsource/press-start-2p";
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/600.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
+  color-scheme: light;
+  --bg: #ECEAE4;
+  --ink: #111111;
+  --panel: #F7F6F2;
+  --chassis: #C9C9C4;
+  --led: #FF7A1A;
+  --danger: #C8402C;
+}
+
+:root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #121016;
-  --panel: #1c1a24;
-  --border: #2f2c3a;
-  --text: #f1eef7;
-  --muted: #9691a8;
-  --accent: #ff5fa2;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  --bg: #0D0D0D;
+  --ink: #EDEDE8;
+  --panel: #1A1A1A;
+  --chassis: #333330;
+  --led: #FF8A2E;
+  --danger: #E85A45;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   margin: 0;
   background: var(--bg);
-  color: var(--text);
+  color: var(--ink);
+  font-family: "Space Grotesk", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-.app {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+::selection {
+  background: var(--led);
+  color: #111111;
 }
 
-header h1 {
-  margin-bottom: 0.25rem;
+/* Focus ring: --led core, 2px offset, on every interactive element */
+:focus-visible {
+  outline: 2px solid var(--led);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
-header p {
-  color: var(--muted);
-  margin-top: 0;
+/* Circular theme-wipe transition (see ThemeToggle) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-top: 1.5rem;
+::view-transition-old(root) {
+  z-index: 1;
 }
 
-.panel h2 {
-  margin-top: 0;
+::view-transition-new(root) {
+  z-index: 2;
 }
 
-.hint {
-  color: var(--muted);
-  font-size: 0.9rem;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-.status {
-  color: var(--accent);
+/* thin scrollbars, matches hairline chassis aesthetic */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--chassis) transparent;
 }
 
-.error {
-  color: #ff6b6b;
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 0.5rem;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.9rem;
-}
-
-th {
-  color: var(--muted);
-  font-weight: 600;
-}
-
-/* Camelot badges */
-
-.camelot-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.5rem;
-  padding: 0.15rem 0.5rem;
+::-webkit-scrollbar-thumb {
+  background: var(--chassis);
   border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.02em;
 }
 
-.camelot-badge--empty {
-  background: transparent;
-  color: var(--muted);
+.font-display {
+  font-family: "Press Start 2P", cursive;
 }
 
-.needs-analysis {
-  color: var(--accent);
-  font-size: 0.75rem;
-  font-weight: 600;
+.font-data {
+  font-family: "JetBrains Mono", monospace;
 }
 
-/* Track table extras */
-
-.remove-btn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
+@keyframes cratewheel-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.remove-btn:hover {
-  color: #ff6b6b;
+@keyframes cratewheel-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.transition-row td {
-  border-bottom: 1px solid var(--border);
-  padding: 0.35rem 0.5rem 0.6rem 2.5rem;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.transition-dot {
-  display: inline-block;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 50%;
-  margin-right: 0.4rem;
-}
-
-.transition-detail {
-  margin-left: 0.4rem;
-  opacity: 0.8;
-}
-
-/* Import panel */
-
-.import-row {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-top: 0.75rem;
-}
-
-.file-label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-/* Sort controls */
-
-.sort-controls {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-/* Buttons */
-
-button {
-  background: var(--accent);
-  color: #1a1015;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-button:disabled {
-  background: var(--border);
-  color: var(--muted);
-  cursor: not-allowed;
-}
-
-.export-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
+.cratewheel-fade {
+  animation: cratewheel-fade-in 150ms ease-out;
 }

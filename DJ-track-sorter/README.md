@@ -1,4 +1,6 @@
-# DJ Track Sorter
+# CRATEWHEEL
+
+*(DJ track sorter — code and directory names still say `DJ-track-sorter` / `dj-track-sorter-*`, only the product name changed)*
 
 Free web app that auto-sorts a DJ's playlist by musical key (Camelot Wheel)
 and BPM compatibility, and lets them export a mix-ready order back out as
