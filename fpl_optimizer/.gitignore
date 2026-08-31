@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+data/cache/*.json
+data/cache/players/*.json
+streamlit.log
+.streamlit/
