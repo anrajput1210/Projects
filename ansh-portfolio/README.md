@@ -23,6 +23,7 @@ Everything renders today, but some pieces are still stand-ins:
 | `assets/signature.svg` | Placeholder | Hand-drawn approximation; replace with a scan. |
 | `assets/proj-*.svg` | Placeholder | Generated from resume metrics, not screenshots of the actual work. Any aspect ratio works; keep ~170 units of quiet space at the bottom for the caption band. |
 | `assets/smiley.png` | **Real** | Supplied by Ansh. The source PNG sat on a white studio background; that background was flood-filled to transparent from the borders and the result cropped square, so the patch keeps its own drop shadow but carries no white box. |
+| `assets/caret-scribble.svg`, `assets/face-doodle.svg` | Keep | The hand-drawn caret and little face that sit with the SOLVING ? annotation over the headline. |
 | `assets/contrib-scaffold.svg` | Keep | Deliberately uniform — it is the placeholder shown until the live GitHub graph loads, so it must not imply activity data that was never fetched. |
 
 ## Copy that still needs Ansh's approval
@@ -48,9 +49,9 @@ Two phrasings are load-bearing and should not be softened:
   `data-x-sm`/`data-y-sm` used below 620px.
 - **Mask reveal**: drag the smiley patch more than 80px and it fades out over 300ms and
   stops taking pointer events, exposing the photo for good. Below the threshold it stays
-  in play. The patch is sized to 154% of the photo: a circle needs roughly that much to
-  clear the corners of a 4:5 rectangle, and anything smaller leaves the photo visible
-  around the edges so the drag has nothing to uncover.
+  in play. The patch is sized and placed to cover the face specifically - the crop puts
+  the head at roughly 55% across and 26% down the frame, at about half the frame width -
+  so the rest of the photo reads from the start and the face is what the drag uncovers.
 - **Connect strip**: all three cards are real `<a href>` elements first. The GitHub
   contributions graph and the repo/language stats are fetched at runtime and layered on
   top; if either request fails the scaffold and `—` placeholders simply stay.
@@ -66,6 +67,14 @@ Two phrasings are load-bearing and should not be softened:
 - **Vignette**: fixed 150px fade-to-black at the viewport bottom, opacity tied to scroll
   progress through the end of the grid.
 - `prefers-reduced-motion: reduce` disables every transition and shows all content.
+
+## The headline
+
+`PROBLEM CHILD` is set as three flex children: the two words either side of a `.headline-gap`
+that is only `.3em` wide - a word space, not a hole. The handwritten `SOLVING ?` annotation
+is absolutely positioned off that gap at `bottom: 100%`, so it floats above the line and
+spans across both words rather than pushing them apart. The caret hangs off its underside
+and points down into the gap; the small sketched face sits beside the question mark.
 
 ## The hero room
 

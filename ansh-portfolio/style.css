@@ -135,7 +135,7 @@ a { color: inherit; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(16px, 4vw, 48px);
-  margin: clamp(22px, 4vw, 42px) 0 0 auto;
+  margin: clamp(12px, 2.4vw, 26px) 0 0 auto;
   max-width: 620px;
   font-size: 11px;
   letter-spacing: .06em;
@@ -148,37 +148,50 @@ a { color: inherit; }
 .hero-title {
   position: relative;
   text-align: center;
-  margin-top: clamp(26px, 5vh, 60px);
+  margin-top: clamp(34px, 8.5vh, 100px);
   pointer-events: none;
 }
 
 /* the handwritten note now lives in the gap the headline leaves between
    PROBLEM and CHILD, rather than floating above the line */
+/* just a word space between PROBLEM and CHILD; the annotation floats above
+   the line and spans across it, as in the source */
 .headline-gap {
   position: relative;
   flex: 0 0 auto;
-  width: clamp(104px, 13.5vw, 250px);
+  width: .3em;
   align-self: stretch;
 }
 .scribble-note {
   position: absolute;
   left: 50%;
-  top: 42%;
-  transform: translate(-50%, -50%) rotate(-7deg);
+  bottom: 100%;
+  margin-bottom: .1em;
+  transform: translateX(-52%) rotate(-1.5deg);
+  display: flex;
+  align-items: flex-start;
+  gap: .12em;
   white-space: nowrap;
 }
 .scribble-text {
   font-family: var(--hand);
-  font-size: clamp(21px, 2.9vw, 50px);
+  font-weight: 700;
+  font-size: clamp(20px, 2.7vw, 46px);
   line-height: 1;
   color: var(--ink-blue-black);
 }
-.scribble-arrow {
+/* the little face sketched beside the question mark */
+.scribble-face {
+  width: clamp(17px, 2.1vw, 36px);
+  margin-top: -.08em;
+}
+/* caret dropping from the note into the gap between the two words */
+.scribble-caret {
   position: absolute;
-  left: 62%;
-  top: 78%;
-  width: clamp(30px, 3.2vw, 54px);
-  transform: rotate(16deg);
+  left: 30%;
+  top: 88%;
+  width: clamp(16px, 1.9vw, 32px);
+  transform: rotate(-3deg);
 }
 
 .headline {
@@ -275,9 +288,12 @@ a { color: inherit; }
 }
 .photo-mask {
   position: absolute;
-  left: 50%;
-  top: 47%;
-  width: 154%;
+  /* sized and placed to sit over the face in the headshot: the crop puts
+     the head at roughly 55% across and 26% down, about 50% of the frame
+     width. Drag it off and the face underneath is what gets revealed. */
+  left: 55%;
+  top: 26%;
+  width: 52%;
   height: auto;
   aspect-ratio: 1 / 1;
   /* the global img max-width would otherwise cap this back to the photo box */
