@@ -149,6 +149,8 @@ a { color: inherit; }
   position: relative;
   text-align: center;
   margin-top: clamp(34px, 8.5vh, 100px);
+  /* wall text: it sits behind the props in the room. JS lifts it above
+     them the moment it is grabbed, so a dragged headline is never hidden. */
   pointer-events: none;
 }
 
@@ -156,6 +158,14 @@ a { color: inherit; }
    PROBLEM and CHILD, rather than floating above the line */
 /* just a word space between PROBLEM and CHILD; the annotation floats above
    the line and spans across it, as in the source */
+.headline-word,
+.scribble-note {
+  pointer-events: auto;
+  cursor: grab;
+}
+.headline.is-dragging .headline-word,
+.headline.is-dragging .scribble-note { cursor: grabbing; }
+
 .headline-gap {
   position: relative;
   flex: 0 0 auto;
@@ -198,6 +208,17 @@ a { color: inherit; }
   display: flex;
   align-items: baseline;
   justify-content: center;
+  /* draggable as one block, annotation included. The h1 box spans the full
+     width, so it stays click-through and only the glyphs themselves take
+     the pointer - otherwise this band would swallow clicks meant for the
+     props behind it. */
+  --dx: 0px;
+  --dy: 0px;
+  transform: translate(var(--dx), var(--dy));
+  pointer-events: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
   font-family: var(--display);
   font-weight: 900;
   font-size: clamp(30px, 7.6vw, 132px);
@@ -213,6 +234,10 @@ a { color: inherit; }
   position: absolute;
   inset: 0;
   z-index: 3;
+  /* purely a positioning container: it spans the whole hero, so if it took
+     pointer events it would swallow every click meant for anything painted
+     under it - the headline included. Only the props themselves listen. */
+  pointer-events: none;
 }
 
 .draggable {
@@ -224,6 +249,7 @@ a { color: inherit; }
   --extra: translateZ(0);
   transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) var(--extra);
   cursor: grab;
+  pointer-events: auto;
   touch-action: none;
   user-select: none;
   -webkit-user-drag: none;

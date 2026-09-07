@@ -127,6 +127,20 @@
     });
   }
 
+  /* The headline drags as one block - both words plus the handwritten
+     annotation - using the same engine as the props. keepZ because it
+     lives in its own stacking context and cannot be raised past it. */
+  var headline = document.querySelector('.headline');
+  var heroTitle = document.querySelector('.hero-title');
+  if (headline) {
+    makeDraggable(headline, { keepZ: true });
+    // .headline cannot escape .hero-title's stacking context, so the lift
+    // has to happen on the wrapper
+    headline.addEventListener('pointerdown', function () {
+      if (heroTitle) heroTitle.style.zIndex = ++topZ;
+    });
+  }
+
   /* --------------------------------------------------------
      2. Scroll reveals — Section 2 columns and grid tiles.
      -------------------------------------------------------- */

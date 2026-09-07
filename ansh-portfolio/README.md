@@ -47,6 +47,14 @@ Two phrasings are load-bearing and should not be softened:
 - **Drag** any hero prop (Pointer Events, so mouse/touch/pen share one path). No physics,
   no snapping. Position is seeded from `data-x`/`data-y` percentages, with
   `data-x-sm`/`data-y-sm` used below 620px.
+- **Drag the headline** too - both words and the handwritten annotation move as one block.
+  Only the glyphs take the pointer, not the full-width `h1` box, so the empty band beside
+  the text stays click-through to whatever is behind it. At rest the headline is wall text
+  sitting behind the props; grabbing it lifts `.hero-title` above them so it is never
+  dragged out of sight.
+- `.stage` is a positioning container only and is `pointer-events: none`. It spans the
+  whole hero, so if it took events it would swallow every click meant for anything painted
+  beneath it. The props opt back in individually.
 - **Mask reveal**: drag the smiley patch more than 80px and it fades out over 300ms and
   stops taking pointer events, exposing the photo for good. Below the threshold it stays
   in play. The patch is sized and placed to cover the face specifically - the crop puts
