@@ -188,13 +188,19 @@ a { color: inherit; }
 .photo-frame { position: relative; }
 .photo-real {
   width: 100%;
+  /* the source frame is square; crop to the portrait shape the spec calls
+     for and bias upward so the crop lands on the face, not the jacket */
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center 18%;
   border: 4px solid var(--hero-text);
   background: #c3cdd1;
 }
 .photo-mask {
   position: absolute;
-  inset: -6px -6px auto -6px;
+  inset: -6px;
   width: calc(100% + 12px);
+  height: calc(100% + 12px);
   --dx: 0px;
   --dy: 0px;
   transform: translate(var(--dx), var(--dy)) rotate(-2deg);
@@ -423,6 +429,8 @@ a { color: inherit; }
   /* cursor-tracked tilt; JS writes --rx/--ry, both default to flat */
   --rx: 0deg;
   --ry: 0deg;
+  --spot-x: 50%;
+  --spot-y: 50%;
   transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
   transition: transform .28s cubic-bezier(.2,.7,.3,1);
   transform-style: preserve-3d;
@@ -435,8 +443,6 @@ a { color: inherit; }
   content: "";
   position: absolute;
   inset: 0;
-  --spot-x: 50%;
-  --spot-y: 50%;
   background: radial-gradient(220px circle at var(--spot-x) var(--spot-y),
               rgba(255,255,255,.16), transparent 70%);
   opacity: 0;
@@ -599,7 +605,7 @@ a { color: inherit; }
 .connect-cards {
   flex: 2 1 560px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1.5fr 1fr;
   gap: 14px;
 }
 
@@ -665,10 +671,11 @@ a { color: inherit; }
   inset: 10px;
   width: calc(100% - 20px);
   object-fit: contain;
+  visibility: hidden;
   opacity: 0;
   transition: opacity .4s ease;
 }
-.contrib--live.is-loaded { opacity: 1; }
+.contrib--live.is-loaded { visibility: visible; opacity: 1; }
 
 .cc-stats { display: flex; gap: 14px; font-size: 9px; letter-spacing: .12em; opacity: .62; }
 .cc-stat b { font-weight: 500; font-variant-numeric: tabular-nums; }

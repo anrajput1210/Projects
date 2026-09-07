@@ -2,9 +2,10 @@
    ANSH RAJPUT — DATA PORTFOLIO
    Custom interaction layer. Everything here is hand-written:
    the Magic UI MCP referenced in the design spec (Section 1a)
-   was not reachable in this environment, so the hero drag,
-   the list/tile reveals and the scroll-linked vignette all use
-   the vanilla approach described in Sections 6 and 7.
+   was not reachable in this environment, so the hero drag, the
+   list/tile reveals, the scroll-linked vignette, the connect
+   strip and the case-study expansion all use the vanilla
+   approach described in Sections 3, 3a, 5a, 6 and 7.
    =========================================================== */
 
 (function () {
@@ -191,5 +192,330 @@
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     updateVignette();
+  }
+
+  /* --------------------------------------------------------
+     4. Connect strip (Section 3a) — live GitHub layer.
+     The cards are real links already; this only adds data on
+     top. Every failure path leaves the resting state intact.
+     -------------------------------------------------------- */
+
+  var GH_USER = 'anrajput1210';
+  var contribLive = document.getElementById('contribLive');
+
+  if (contribLive) {
+    contribLive.addEventListener('load', function () {
+      contribLive.classList.add('is-loaded');
+    });
+    // on error the scaffold underneath simply stays visible
+    contribLive.src = 'https://ghchart.rshah.org/8fa38c/' + GH_USER;
+  }
+
+  var ghStats = document.getElementById('ghStats');
+  if (ghStats && window.fetch) {
+    var setStat = function (key, value) {
+      var node = ghStats.querySelector('[data-gh="' + key + '"]');
+      if (node && value) node.textContent = value;
+    };
+
+    fetch('https://api.github.com/users/' + GH_USER)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { if (d) setStat('repos', d.public_repos); })
+      .catch(function () { /* placeholder dash stays */ });
+
+    fetch('https://api.github.com/users/' + GH_USER + '/repos?per_page=100&sort=pushed')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (repos) {
+        if (!repos || !repos.length) return;
+        var tally = {};
+        repos.forEach(function (repo) {
+          if (repo.language) tally[repo.language] = (tally[repo.language] || 0) + 1;
+        });
+        var top = Object.keys(tally).sort(function (a, b) { return tally[b] - tally[a]; })[0];
+        setStat('lang', top);
+      })
+      .catch(function () { /* placeholder dash stays */ });
+  }
+
+  /* --------------------------------------------------------
+     5. Tile hover — cursor-tracked tilt + spotlight.
+     Fine pointers only; a touch device never gets a hover
+     state worth paying for.
+     -------------------------------------------------------- */
+
+  var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  var TILT = 5; // degrees at the tile edge
+
+  if (finePointer.matches && !reduceMotion) {
+    tiles.forEach(function (tile) {
+      var inner = tile.querySelector('.tile-inner');
+      if (!inner) return;
+
+      tile.addEventListener('pointermove', function (e) {
+        var r = tile.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width;
+        var py = (e.clientY - r.top) / r.height;
+        inner.style.setProperty('--ry', ((px - 0.5) * 2 * TILT).toFixed(2) + 'deg');
+        inner.style.setProperty('--rx', ((0.5 - py) * 2 * TILT).toFixed(2) + 'deg');
+        inner.style.setProperty('--spot-x', (px * 100).toFixed(1) + '%');
+        inner.style.setProperty('--spot-y', (py * 100).toFixed(1) + '%');
+      });
+
+      tile.addEventListener('pointerleave', function () {
+        inner.style.setProperty('--rx', '0deg');
+        inner.style.setProperty('--ry', '0deg');
+      });
+    });
+  }
+
+  /* --------------------------------------------------------
+     6. Case study expansion (Section 5a).
+     The tile image grows from its exact grid rect into the
+     panel (FLIP), then the copy assembles on a stagger.
+     Closing reverses the same flight back to the tile.
+     -------------------------------------------------------- */
+
+  var overlay = document.getElementById('overlay');
+  var panel = document.getElementById('panel');
+  var panelImg = document.getElementById('panelImg');
+  var panelDate = document.getElementById('panelDate');
+  var panelTitle = document.getElementById('panelTitle');
+  var panelProblem = document.getElementById('panelProblem');
+  var panelStack = document.getElementById('panelStack');
+  var panelBullets = document.getElementById('panelBullets');
+  var panelClose = document.getElementById('panelClose');
+  var overlayScrim = document.getElementById('overlayScrim');
+
+  if (overlay && panel) {
+    var EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+    var sheetQuery = window.matchMedia('(max-width: 760px)');
+    var openTile = null;
+    var lastFocus = null;
+    var timers = [];
+    var typeTimer = null;
+    var flight = null;
+    var isOpen = false;
+
+    // backdrop blur is the first thing to go if the device is modest
+    if ((navigator.hardwareConcurrency || 8) > 4 && !reduceMotion) {
+      overlay.classList.add('has-blur');
+    }
+
+    function clearTimers() {
+      timers.forEach(clearTimeout);
+      timers = [];
+      if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
+    }
+
+    function after(ms, fn) { timers.push(setTimeout(fn, ms)); }
+
+    function lockScroll() {
+      // pad out the scrollbar so hiding it does not shift the page
+      var sb = window.innerWidth - document.documentElement.clientWidth;
+      if (sb > 0) document.body.style.paddingRight = sb + 'px';
+      document.body.classList.add('is-locked');
+    }
+
+    function unlockScroll() {
+      document.body.classList.remove('is-locked');
+      document.body.style.paddingRight = '';
+    }
+
+    /* --- fill the panel from the clicked tile --- */
+    function populate(tile) {
+      var img = tile.querySelector('.tile-inner img');
+      var detail = tile.querySelector('.tile-detail');
+      var heading = tile.querySelector('.caption h3');
+
+      panelImg.src = img.getAttribute('src');
+      panelImg.alt = img.getAttribute('alt') || '';
+      panelTitle.textContent = heading ? heading.textContent.trim() : '';
+      panelDate.textContent = detail.querySelector('.detail-date').textContent.trim();
+
+      // the problem line is typed in later, so it starts empty
+      panelProblem.textContent = '';
+      panelProblem.dataset.line = detail.querySelector('.detail-problem').textContent.trim();
+
+      panelStack.innerHTML = '';
+      detail.querySelectorAll('.detail-stack li').forEach(function (src) {
+        var chip = document.createElement('li');
+        chip.textContent = src.textContent.trim();
+        // a small random launch offset, so the chips do not march in as a row
+        chip.style.setProperty('--cx', (Math.random() * 26 - 13).toFixed(0) + 'px');
+        chip.style.setProperty('--cy', (10 + Math.random() * 14).toFixed(0) + 'px');
+        panelStack.appendChild(chip);
+      });
+
+      panelBullets.innerHTML = '';
+      detail.querySelectorAll('.detail-bullets li').forEach(function (src) {
+        var li = document.createElement('li');
+        li.innerHTML =
+          '<svg class="bullet-mark" viewBox="0 0 14 14" aria-hidden="true">' +
+          '<circle cx="7" cy="7" r="6"/></svg><span></span>';
+        li.querySelector('span').textContent = src.textContent.trim();
+        panelBullets.appendChild(li);
+      });
+
+      // reset every staged element for a fresh run
+      [panelDate, panelTitle, panelProblem, panelStack, panelBullets].forEach(function (n) {
+        n.classList.remove('is-in');
+      });
+      panel.querySelectorAll('.panel-problem-label, .panel-stack-label').forEach(function (n) {
+        n.classList.remove('is-in');
+      });
+      panelProblem.classList.remove('is-typing');
+    }
+
+    /* --- the staged reveal, per spec 5a step 4 --- */
+    function typeLine(el, text) {
+      if (reduceMotion) { el.textContent = text; return; }
+      var i = 0;
+      el.classList.add('is-typing');
+      typeTimer = setInterval(function () {
+        el.textContent = text.slice(0, ++i);
+        if (i >= text.length) {
+          clearInterval(typeTimer);
+          typeTimer = null;
+          el.classList.remove('is-typing');
+        }
+      }, 16);
+    }
+
+    function runStagger() {
+      var problemLabel = panel.querySelector('.panel-problem-label');
+      var stackLabel = panel.querySelector('.panel-stack-label');
+
+      panelDate.classList.add('is-in');
+      panelTitle.classList.add('is-in');
+
+      after(150, function () {
+        problemLabel.classList.add('is-in');
+        panelProblem.classList.add('is-in');
+        typeLine(panelProblem, panelProblem.dataset.line || '');
+      });
+
+      after(300, function () {
+        stackLabel.classList.add('is-in');
+        panelStack.classList.add('is-in');
+        panelStack.querySelectorAll('li').forEach(function (chip, i) {
+          after(i * 40, function () { chip.classList.add('is-in'); });
+        });
+      });
+
+      after(450, function () {
+        panelBullets.classList.add('is-in');
+        panelBullets.querySelectorAll('li').forEach(function (li, i) {
+          after(i * 80, function () { li.classList.add('is-in'); });
+        });
+      });
+    }
+
+    /* --- open --- */
+    function open(tile) {
+      if (isOpen) return;
+      isOpen = true;
+      openTile = tile;
+      lastFocus = document.activeElement;
+
+      var first = tile.getBoundingClientRect();
+      populate(tile);
+      overlay.hidden = false;
+      lockScroll();
+      overlay.classList.add('is-open');
+
+      var sheet = sheetQuery.matches;
+      var frames;
+
+      if (reduceMotion) {
+        frames = null;
+      } else if (sheet) {
+        // touch viewports get a bottom sheet, not the shared-element flight
+        frames = [{ transform: 'translateY(100%)' }, { transform: 'none' }];
+      } else {
+        var last = panel.getBoundingClientRect();
+        frames = [{
+          transform: 'translate(' + (first.left - last.left) + 'px,' + (first.top - last.top) + 'px)' +
+                     ' scale(' + (first.width / last.width) + ',' + (first.height / last.height) + ')',
+          opacity: 0.55
+        }, {
+          transform: 'none',
+          opacity: 1
+        }];
+      }
+
+      panelClose.focus();
+
+      if (!frames) { runStagger(); return; }
+
+      flight = panel.animate(frames, {
+        duration: sheet ? 420 : 560,
+        easing: EASE,
+        fill: 'both'
+      });
+      flight.finished.then(function () {
+        if (flight) flight.cancel();   // final frame equals the resting style
+        flight = null;
+        runStagger();
+      }).catch(function () { /* superseded by a close */ });
+    }
+
+    /* --- close: the image visibly returns home --- */
+    function close() {
+      if (!isOpen) return;
+      isOpen = false;
+      clearTimers();
+      if (flight) { flight.cancel(); flight = null; }
+
+      var done = function () {
+        overlay.hidden = true;
+        overlay.classList.remove('is-open');
+        unlockScroll();
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+        openTile = null;
+      };
+
+      if (reduceMotion || !openTile) { done(); return; }
+
+      var last = panel.getBoundingClientRect();
+      var first = openTile.getBoundingClientRect();
+      var frames = sheetQuery.matches
+        ? [{ transform: 'none' }, { transform: 'translateY(100%)' }]
+        : [{ transform: 'none', opacity: 1 }, {
+            transform: 'translate(' + (first.left - last.left) + 'px,' + (first.top - last.top) + 'px)' +
+                       ' scale(' + (first.width / last.width) + ',' + (first.height / last.height) + ')',
+            opacity: 0.55
+          }];
+
+      overlay.classList.remove('is-open');
+      var back = panel.animate(frames, { duration: 420, easing: EASE, fill: 'both' });
+      back.finished.then(function () { back.cancel(); done(); }).catch(done);
+    }
+
+    tiles.forEach(function (tile) {
+      var hit = tile.querySelector('.tile-hit');
+      if (hit) hit.addEventListener('click', function () { open(tile); });
+    });
+
+    panelClose.addEventListener('click', close);
+    overlayScrim.addEventListener('click', close);
+
+    document.addEventListener('keydown', function (e) {
+      if (!isOpen) return;
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key !== 'Tab') return;
+
+      // keep focus inside the dialog while it is open
+      var focusables = panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      var firstEl = focusables[0];
+      var lastEl = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === firstEl) {
+        e.preventDefault();
+        lastEl.focus();
+      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        e.preventDefault();
+        firstEl.focus();
+      }
+    });
   }
 })();
