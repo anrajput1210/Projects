@@ -18,8 +18,17 @@
   --text-grey-dim:  #6b6b6b;
   --ink-blue-black: #1c1c1c;
 
+  /* Section 3a — connect strip (new, not in source) */
+  --strip-bg:       #f4f4f4;
+
   /* Section 3 — project grid */
   --grid-bg:        #000000;
+
+  /* accent + ring, carried over from the project visuals so the expanded
+     panel reads as part of this site rather than a generic overlay */
+  --accent:         #e0b062;
+  --accent-soft:    #8fa38c;
+  --ring:           rgba(224, 176, 98, .42);
 
   --mono: "IBM Plex Mono", "Courier New", monospace;
   --display: "Archivo Black", "Helvetica Neue", Arial Black, Arial, sans-serif;
@@ -241,7 +250,7 @@ a { color: inherit; }
   margin: 0;
   padding: 0;
   font-family: var(--display);
-  /* sized so the longest item ("INFINITE HYPERPARAMETER TUNING") still
+  /* sized so the longest item ("MASTER DATA MANAGEMENT") still
      holds a single line inside the half-width column */
   font-size: clamp(19px, 2.15vw, 33px);
   line-height: 1.16;
@@ -408,8 +417,53 @@ a { color: inherit; }
 }
 .js .tile { opacity: 0; transform: translateY(22px); }
 .tile.is-revealed { opacity: 1; transform: none; }
-.tile img { width: 100%; height: auto; transition: transform .6s cubic-bezier(.2,.7,.3,1); }
-.tile:hover img { transform: scale(1.035); }
+.tile-inner {
+  position: relative;
+  display: block;
+  /* cursor-tracked tilt; JS writes --rx/--ry, both default to flat */
+  --rx: 0deg;
+  --ry: 0deg;
+  transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform .28s cubic-bezier(.2,.7,.3,1);
+  transform-style: preserve-3d;
+}
+.tile-inner img { width: 100%; height: auto; transition: transform .6s cubic-bezier(.2,.7,.3,1); }
+.tile:hover .tile-inner img { transform: scale(1.035); }
+
+/* spotlight follows the cursor inside the tile bounds */
+.tile-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  --spot-x: 50%;
+  --spot-y: 50%;
+  background: radial-gradient(220px circle at var(--spot-x) var(--spot-y),
+              rgba(255,255,255,.16), transparent 70%);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+}
+.tile:hover .tile-inner::after { opacity: 1; }
+
+/* full-tile hit area, so the case study opens by click or keyboard */
+.tile-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.js .tile-hit { display: block; }
+.tile-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+
+/* the case-study copy reads inline when JS is off, and is cloned into the
+   expanding panel when it is on */
+.tile-detail { padding: 20px 18px 24px; color: #cfd6d9; font-size: 12px; line-height: 1.7; }
+.tile-detail ul { margin: 10px 0 0; padding-left: 18px; }
+.js .tile-detail { display: none; }
 
 .caption {
   position: absolute;
@@ -503,5 +557,361 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal, .tile, .skill-list li { transition: none; opacity: 1; transform: none; }
-  .tile:hover img { transform: none; }
+  .tile:hover .tile-inner img { transform: none; }
+  .tile-inner { transform: none; transition: none; }
+  .tile-inner::after { display: none; }
+}
+
+/* ===========================================================
+   SECTION 3a — CONNECT STRIP
+   Light breather between the busy hero and the dark panel.
+   Hand-built: the Magic UI MCP catalog named in spec 1a was
+   not reachable in this environment (see README).
+   =========================================================== */
+
+.connect-strip {
+  background: var(--strip-bg);
+  color: var(--hero-text);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+  padding: clamp(40px, 6vw, 64px) clamp(18px, 4vw, 56px);
+}
+
+.connect-stat { flex: 1 1 280px; }
+.stat-number {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(64px, 9vw, 132px);
+  line-height: .86;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label {
+  margin: 14px 0 0;
+  font-size: 11px;
+  letter-spacing: .22em;
+}
+.stat-line { margin: 8px 0 0; font-size: 11px; letter-spacing: .06em; opacity: .72; }
+.stat-note { margin: 4px 0 0; font-size: 10px; letter-spacing: .1em; opacity: .5; }
+
+.connect-cards {
+  flex: 2 1 560px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+/* one object, repeated: same edges, padding and bottom-pinned action row */
+.cc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 250px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(26, 26, 26, .14);
+  color: var(--hero-text);
+  text-decoration: none;
+  transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+.cc:hover, .cc:focus-visible {
+  border-color: rgba(26, 26, 26, .4);
+  box-shadow: 0 14px 30px rgba(26, 32, 38, .12);
+  transform: translateY(-3px);
+}
+.cc:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.cc-label { font-size: 10px; letter-spacing: .18em; opacity: .55; }
+
+.cc-stage {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f7f7f5;
+  border: 1px solid rgba(26, 26, 26, .08);
+}
+
+.cc-action {
+  margin-top: auto;
+  font-size: 10px;
+  letter-spacing: .16em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.cc:hover .cc-action { color: #000; }
+
+/* resume: the page preview lifts toward the reader on hover */
+.resume-thumb {
+  width: 100%;
+  transform-origin: center top;
+  transform: scale(1.02);
+  transition: transform .4s cubic-bezier(.2,.7,.3,1);
+}
+.cc--resume:hover .resume-thumb,
+.cc--resume:focus-visible .resume-thumb { transform: scale(1.13); }
+
+/* github: scaffold underneath, live contributions graph over it */
+.cc-stage--contrib { padding: 10px; background: #ffffff; }
+.contrib { width: 100%; }
+.contrib--live {
+  position: absolute;
+  inset: 10px;
+  width: calc(100% - 20px);
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+.contrib--live.is-loaded { opacity: 1; }
+
+.cc-stats { display: flex; gap: 14px; font-size: 9px; letter-spacing: .12em; opacity: .62; }
+.cc-stat b { font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* linkedin: a connector that pulses from the profile mark to the button */
+.cc-stage--beam { background: #ffffff; }
+.beam { width: 100%; height: auto; }
+.beam-track { stroke: rgba(26,26,26,.16); stroke-width: 2; }
+.beam-pulse {
+  stroke: var(--accent-soft);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 26 154;
+  stroke-dashoffset: 180;
+  animation: beam-run 2.6s linear infinite;
+}
+@keyframes beam-run { to { stroke-dashoffset: 0; } }
+.beam-node { fill: none; stroke: var(--hero-text); stroke-width: 2; }
+.beam-initials {
+  font-family: var(--mono);
+  font-size: 15px;
+  fill: var(--hero-text);
+}
+.beam-target { fill: var(--hero-text); transition: fill .25s ease; }
+.cc--linkedin:hover .beam-target { fill: #0a66c2; }
+.beam-cta { font-family: var(--display); font-size: 18px; fill: #ffffff; }
+
+/* ===========================================================
+   SECTION 5a — CASE STUDY EXPANSION
+   =========================================================== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.overlay[hidden] { display: none; }
+
+.overlay-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 5, 6, .74);
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+/* dropped by JS on devices where the expand animation cannot hold 60fps */
+.overlay.has-blur .overlay-scrim { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.overlay.is-open .overlay-scrim { opacity: 1; }
+
+.panel {
+  position: relative;
+  width: min(1120px, 92vw);
+  height: min(760px, 88vh);
+  transform-origin: top left;
+  background: var(--panel-dark);
+  color: var(--text-white);
+  border: 1px solid rgba(255, 255, 255, .12);
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.panel-media { overflow: hidden; background: #0d0f12; }
+.panel-media img { width: 100%; height: 100%; object-fit: cover; }
+
+.panel-body {
+  padding: clamp(24px, 3vw, 44px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, .55);
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.panel-close:hover { background: rgba(0, 0, 0, .85); border-color: #fff; }
+.panel-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.panel-close svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
+
+.panel-date {
+  margin: 0 0 10px;
+  font-size: 10px;
+  letter-spacing: .2em;
+  color: var(--accent);
+}
+.panel-title {
+  margin: 0 0 22px;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(22px, 2.4vw, 34px);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+.panel-problem-label,
+.panel-stack-label {
+  margin: 0 0 8px;
+  font-size: 9px;
+  letter-spacing: .24em;
+  color: var(--text-grey-dim);
+}
+.panel-problem {
+  margin: 0 0 26px;
+  font-size: 13px;
+  line-height: 1.75;
+  color: #d8dde0;
+  min-height: 2.6em;
+}
+/* terminal caret, shown only while the line is printing */
+.panel-problem::after {
+  content: "";
+  display: none;
+  width: 7px;
+  height: 1em;
+  margin-left: 3px;
+  background: var(--accent);
+  vertical-align: text-bottom;
+  animation: caret 1s steps(1) infinite;
+}
+.panel-problem.is-typing::after { display: inline-block; }
+@keyframes caret { 50% { opacity: 0; } }
+
+.panel-stack {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.panel-stack li {
+  padding: 6px 12px;
+  font-size: 10px;
+  letter-spacing: .1em;
+  border: 1px solid var(--ring);
+  border-radius: 999px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.panel-bullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.panel-bullets li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 12px;
+  align-items: start;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #e3e7e9;
+}
+.bullet-mark { width: 14px; height: 14px; margin-top: 5px; overflow: visible; }
+.bullet-mark circle {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  stroke-dasharray: 38;
+  stroke-dashoffset: 38;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+/* --- staged entrance, driven by JS adding .is-in --- */
+.js .panel-body > *,
+.js .panel-stack li,
+.js .panel-bullets li { opacity: 0; }
+
+.panel-date.is-in,
+.panel-title.is-in,
+.panel-problem-label.is-in,
+.panel-problem.is-in,
+.panel-stack-label.is-in {
+  opacity: 1;
+  animation: rise .45s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.panel-stack.is-in { opacity: 1; }
+.panel-stack li.is-in {
+  opacity: 1;
+  /* each chip flies in from its own offset, JS writes --cx / --cy */
+  animation: chip-in .42s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+@keyframes chip-in {
+  from { opacity: 0; transform: translate(var(--cx, 10px), var(--cy, 12px)) scale(.9); }
+  to   { opacity: 1; transform: none; }
+}
+
+.panel-bullets.is-in { opacity: 1; }
+.panel-bullets li.is-in { opacity: 1; animation: rise .5s cubic-bezier(.2,.8,.3,1) both; }
+.panel-bullets li.is-in .bullet-mark circle { animation: draw-mark .5s ease-out .12s both; }
+@keyframes draw-mark { to { stroke-dashoffset: 0; } }
+
+body.is-locked { overflow: hidden; }
+
+/* ===========================================================
+   SECTION 3a / 5a — RESPONSIVE
+   =========================================================== */
+
+@media (max-width: 1080px) {
+  .connect-cards { flex-basis: 100%; }
+}
+
+@media (max-width: 760px) {
+  .connect-cards { grid-template-columns: 1fr; }
+  .cc { min-height: 0; }
+  .cc-stage { max-height: 190px; }
+
+  /* touch viewports get a bottom sheet instead of the shared-element FLIP */
+  .overlay { align-items: flex-end; }
+  .panel {
+    width: 100%;
+    height: 90vh;
+    grid-template-columns: 1fr;
+    grid-template-rows: 34vh 1fr;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beam-pulse { animation: none; stroke-dashoffset: 0; stroke-dasharray: none; opacity: .5; }
+  .cc, .resume-thumb { transition: none; }
+  .cc:hover { transform: none; }
+  .panel-date, .panel-title, .panel-problem-label, .panel-problem, .panel-stack-label,
+  .panel-stack, .panel-stack li, .panel-bullets, .panel-bullets li { animation: none !important; opacity: 1 !important; }
+  .bullet-mark circle { stroke-dashoffset: 0; }
+  .panel-problem::after { display: none !important; }
 }
