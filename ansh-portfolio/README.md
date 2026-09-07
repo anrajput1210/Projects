@@ -8,7 +8,7 @@ index.html    hero, connect strip, skills split, project grid, case-study panel
 style.css     palette + layout (spec Section 2 palette used verbatim)
 script.js     drag props, mask reveal, scroll reveals, vignette,
               live GitHub layer, tile tilt, FLIP case-study expansion
-assets/       headshot + 19 hand-drawn SVGs
+assets/       headshot, smiley patch + 18 hand-drawn SVGs
 ```
 
 ## Assets you should replace
@@ -22,7 +22,7 @@ Everything renders today, but some pieces are still stand-ins:
 | `assets/resume-thumb.svg` | Placeholder | A drawn approximation of the resume page layout, used for the card preview. Replace with a rendered first page of the real PDF for an exact preview. |
 | `assets/signature.svg` | Placeholder | Hand-drawn approximation; replace with a scan. |
 | `assets/proj-*.svg` | Placeholder | Generated from resume metrics, not screenshots of the actual work. Any aspect ratio works; keep ~170 units of quiet space at the bottom for the caption band. |
-| `assets/mask-scribble.svg` | Keep | The scribbled yellow marker smiley covering the photo until dragged off. Wordless by design - the spec calls for a graphic, not a labelled card. Sized to 118% of the photo so its wobbled edge clears the frame corners and the photo is genuinely hidden. |
+| `assets/smiley.png` | **Real** | Supplied by Ansh. The source PNG sat on a white studio background; that background was flood-filled to transparent from the borders and the result cropped square, so the patch keeps its own drop shadow but carries no white box. |
 | `assets/contrib-scaffold.svg` | Keep | Deliberately uniform — it is the placeholder shown until the live GitHub graph loads, so it must not imply activity data that was never fetched. |
 
 ## Copy that still needs Ansh's approval
@@ -46,9 +46,11 @@ Two phrasings are load-bearing and should not be softened:
 - **Drag** any hero prop (Pointer Events, so mouse/touch/pen share one path). No physics,
   no snapping. Position is seeded from `data-x`/`data-y` percentages, with
   `data-x-sm`/`data-y-sm` used below 620px.
-- **Mask reveal**: drag the yellow scribble smiley more than 80px and it fades out over
-  300ms and stops taking pointer events, exposing the photo for good. Below the threshold
-  it stays in play.
+- **Mask reveal**: drag the smiley patch more than 80px and it fades out over 300ms and
+  stops taking pointer events, exposing the photo for good. Below the threshold it stays
+  in play. The patch is sized to 154% of the photo: a circle needs roughly that much to
+  clear the corners of a 4:5 rectangle, and anything smaller leaves the photo visible
+  around the edges so the drag has nothing to uncover.
 - **Connect strip**: all three cards are real `<a href>` elements first. The GitHub
   contributions graph and the repo/language stats are fetched at runtime and layered on
   top; if either request fails the scaffold and `—` placeholders simply stay.
@@ -64,6 +66,23 @@ Two phrasings are load-bearing and should not be softened:
 - **Vignette**: fixed 150px fade-to-black at the viewport bottom, opacity tied to scroll
   progress through the end of the grid.
 - `prefers-reduced-motion: reduce` disables every transition and shows all content.
+
+## The hero room
+
+The backdrop is two planes rather than a flat fill:
+
+- **Wall** - `.hero` background, soft blue-grey darkening from `#bcc7cb` to `#a3afb5`.
+- **Seam** - `.hero-floor::before`, a blurred shadow band straddling the 80% line so the
+  wall meets the floor as a gradual transition, never an edge.
+- **Floor** - `.hero-floor`, from 80% to the bottom, slightly lighter than the wall.
+- **Vignette** - `.hero::before`, a corner darkening that makes the wall read as an
+  enclosed space. It sits above the floor and below every content layer, so it shades the
+  room without dimming the text.
+- **Contact shadows** - a blurred radial `::after` under each prop that stands on the
+  floor. The headshot and signature hang on the wall and deliberately get none.
+- The chart printout uses `perspective(520px) rotateX(62deg)`, a short enough perspective
+  distance that the top edge is visibly narrower than the bottom - laid flat and receding
+  toward the wall rather than a flat rectangle.
 
 ## Progressive enhancement
 
@@ -89,13 +108,10 @@ Nothing important is locked behind JS or the network:
 2. **Grid runs 3 columns, not 4.** With exactly 6 tiles the browser's column balancer packs
    them 2/2/2 and leaves the fourth column empty. One line in `style.css` (`.grid`) flips it
    back to 4 if more tiles get added.
-3. **Headline ceiling is 100px.** "PROBLEM SOLVING CHILD" is 21 characters against the
-   source headline's 13. At the source's size it runs off the viewport, so the clamp
-   ceiling came down to hold it on one line at the same proportions.
-4. **Skill list is ~33px, not the 48–64px the spec suggests.** "MASTER DATA MANAGEMENT" is
+3. **Skill list is ~33px, not the 48–64px the spec suggests.** "MASTER DATA MANAGEMENT" is
    22 characters; at 48px+ it cannot hold one line in a half-viewport column. Below 620px
    it wraps instead.
-5. **GPA and dates moved to the connect strip.** The spec's hero block has no room for
+4. **GPA and dates moved to the connect strip.** The spec's hero block has no room for
    them, but they are real resume data, so they sit under the 2027 callout rather than
    being dropped.
 
