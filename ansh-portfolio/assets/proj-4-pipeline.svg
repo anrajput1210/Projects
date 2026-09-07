@@ -9,7 +9,7 @@
   <g font-family="Courier New, monospace" font-size="12" fill="#6d767c">
     <text x="80" y="128">RECORDS CLEANED</text><text x="314" y="128">DUPLICATE RATE</text><text x="548" y="128">REFRESH</text>
   </g>
-  <g font-family="Archivo Black, Arial Black, sans-serif" font-size="40" fill="#eef1f0">
+  <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="40" fill="#eef1f0">
     <text x="80" y="184">1.2M</text><text x="314" y="184">0.4%</text><text x="548" y="184">DAILY</text>
   </g>
   <text x="60" y="268" font-family="Courier New, monospace" font-size="13" fill="#6d767c">VALIDATION FAILURES BY SOURCE TABLE</text>

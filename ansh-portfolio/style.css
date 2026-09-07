@@ -30,8 +30,13 @@
   --accent-soft:    #8fa38c;
   --ring:           rgba(224, 176, 98, .42);
 
-  --mono: "IBM Plex Mono", "Courier New", monospace;
-  --display: "Archivo Black", "Helvetica Neue", Arial Black, Arial, sans-serif;
+  /* Spec Section 1: Helvetica Neue throughout, system-font-first, with
+     Inter as the licensed-free fallback. The small NAME/TOPIC/REACH AT
+     labels are this same family at medium weight, not a mono face. */
+  --sans: "Helvetica Neue", HelveticaNeue, Helvetica, Inter, Arial, sans-serif;
+  --display: "Helvetica Neue", HelveticaNeue, Helvetica, Inter, "Arial Black", Arial, sans-serif;
+  /* the one genuinely monospaced face: the terminal-style PROBLEM line */
+  --code: "IBM Plex Mono", "Courier New", monospace;
   --hand: "Caveat", "Comic Sans MS", cursive;
   --marker: "Permanent Marker", "Caveat", cursive;
 }
@@ -42,9 +47,10 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
+  font-weight: 500;
   background: var(--grid-bg);
   color: var(--hero-text);
-  font-family: var(--mono);
+  font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -137,10 +143,13 @@ a { color: inherit; }
 
 .headline {
   font-family: var(--display);
-  font-size: clamp(46px, 11.4vw, 186px);
+  font-weight: 900;
+  /* "PROBLEM SOLVING CHILD" is 21 characters against the source's 13, so the
+     ceiling comes down to keep it on one line at the same proportions */
+  font-size: clamp(26px, 5.6vw, 100px);
   line-height: .9;
   white-space: nowrap;
-  letter-spacing: -.02em;
+  letter-spacing: -.03em;
   margin: 0;
   color: var(--hero-text);
 }
@@ -198,18 +207,21 @@ a { color: inherit; }
 }
 .photo-mask {
   position: absolute;
-  inset: -6px;
-  width: calc(100% + 12px);
-  height: calc(100% + 12px);
+  inset: -9%;
+  width: 118%;
+  height: 118%;
+  /* the global img max-width would otherwise cap this back to the photo
+     box and leave the photo showing around the scribble */
+  max-width: none;
   --dx: 0px;
   --dy: 0px;
   transform: translate(var(--dx), var(--dy)) rotate(-2deg);
   cursor: grab;
   touch-action: none;
   user-select: none;
-  transition: opacity .45s ease;
+  transition: opacity .3s ease;
 }
-.photo-mask.is-dragging { cursor: grabbing; transition: opacity .45s ease; }
+.photo-mask.is-dragging { cursor: grabbing; transition: opacity .3s ease; }
 .photo-mask.is-lifted { opacity: 0; pointer-events: none; }
 
 .hero-hint {
@@ -256,6 +268,7 @@ a { color: inherit; }
   margin: 0;
   padding: 0;
   font-family: var(--display);
+  font-weight: 900;
   /* sized so the longest item ("MASTER DATA MANAGEMENT") still
      holds a single line inside the half-width column */
   font-size: clamp(19px, 2.15vw, 33px);
@@ -320,7 +333,7 @@ a { color: inherit; }
 }
 .statement p { margin: 0 0 .35em; }
 .statement p:nth-child(odd) {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: clamp(10px, 1vw, 12px);
   letter-spacing: .18em;
   opacity: .6;
@@ -483,7 +496,7 @@ a { color: inherit; }
 .caption h3 {
   margin: 0 0 4px;
   font-family: var(--display);
-  font-weight: 400;
+  font-weight: 800;
   font-size: clamp(13px, 1.15vw, 17px);
   letter-spacing: -.01em;
 }
@@ -540,7 +553,7 @@ a { color: inherit; }
   .hero { min-height: 108vh; }
   .hero-meta { grid-template-columns: 1fr; }
   .hero-honesty { grid-template-columns: 1fr; }
-  .headline { font-size: clamp(30px, 11vw, 74px); }
+  .headline { font-size: clamp(19px, 6.6vw, 44px); }
   .grid { column-count: 1; }
   /* props stay draggable but shrink so the small screen isn't buried */
   .prop-signature, .prop-plant-l, .prop-plant-r { opacity: .5; }
@@ -589,6 +602,7 @@ a { color: inherit; }
 .stat-number {
   margin: 0;
   font-family: var(--display);
+  font-weight: 900;
   font-size: clamp(64px, 9vw, 132px);
   line-height: .86;
   letter-spacing: -.03em;
@@ -695,13 +709,13 @@ a { color: inherit; }
 @keyframes beam-run { to { stroke-dashoffset: 0; } }
 .beam-node { fill: none; stroke: var(--hero-text); stroke-width: 2; }
 .beam-initials {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 15px;
   fill: var(--hero-text);
 }
 .beam-target { fill: var(--hero-text); transition: fill .25s ease; }
 .cc--linkedin:hover .beam-target { fill: #0a66c2; }
-.beam-cta { font-family: var(--display); font-size: 18px; fill: #ffffff; }
+.beam-cta { font-family: var(--display); font-weight: 800; font-size: 18px; fill: #ffffff; }
 
 /* ===========================================================
    SECTION 5a — CASE STUDY EXPANSION
@@ -781,7 +795,7 @@ a { color: inherit; }
 .panel-title {
   margin: 0 0 22px;
   font-family: var(--display);
-  font-weight: 400;
+  font-weight: 900;
   font-size: clamp(22px, 2.4vw, 34px);
   line-height: 1.1;
   letter-spacing: -.02em;
@@ -796,7 +810,8 @@ a { color: inherit; }
 }
 .panel-problem {
   margin: 0 0 26px;
-  font-size: 13px;
+  font-family: var(--code);
+  font-size: 12.5px;
   line-height: 1.75;
   color: #d8dde0;
   min-height: 2.6em;
@@ -921,4 +936,57 @@ body.is-locked { overflow: hidden; }
   .panel-stack, .panel-stack li, .panel-bullets, .panel-bullets li { animation: none !important; opacity: 1 !important; }
   .bullet-mark circle { stroke-dashoffset: 0; }
   .panel-problem::after { display: none !important; }
+}
+
+/* ===========================================================
+   BROWSER-CHROME FRAME
+   Fidelity requirement from the spec preamble: the source
+   opens with a black browser frame above the hero.
+   =========================================================== */
+
+.browser-chrome {
+  position: relative;
+  z-index: 12;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 16px;
+  background: #000000;
+  color: rgba(255, 255, 255, .62);
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .18em;
+}
+
+.chrome-dots { display: flex; gap: 8px; flex: 0 0 auto; }
+.chrome-dots i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .28);
+}
+
+.chrome-url {
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 5px 0;
+  margin-right: 57px; /* offsets the dots so the label sits truly centred */
+  background: rgba(255, 255, 255, .07);
+  border-radius: 999px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* the chrome bar is part of the first screenful, so the hero gives back
+   its height rather than pushing itself below the fold */
+.hero { min-height: calc(100vh - 44px); }
+
+@media (max-width: 620px) {
+  .browser-chrome { height: 38px; gap: 12px; }
+  .chrome-dots i { width: 9px; height: 9px; }
+  .chrome-url { margin-right: 45px; font-size: 9px; letter-spacing: .12em; }
+  .hero { min-height: calc(108vh - 38px); }
 }
