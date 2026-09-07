@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" width="900" height="320">
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdfdfb"/>
+      <stop offset="1" stop-color="#e6e6e0"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="900" height="320" fill="url(#paper)"/>
+  <g fill="#d3d3cc"><rect x="0" y="0" width="26" height="320"/><rect x="874" y="0" width="26" height="320"/></g>
+  <g fill="#fdfdfb">
+    <circle cx="13" cy="24" r="6"/><circle cx="13" cy="72" r="6"/><circle cx="13" cy="120" r="6"/><circle cx="13" cy="168" r="6"/><circle cx="13" cy="216" r="6"/><circle cx="13" cy="264" r="6"/><circle cx="13" cy="304" r="6"/>
+    <circle cx="887" cy="24" r="6"/><circle cx="887" cy="72" r="6"/><circle cx="887" cy="120" r="6"/><circle cx="887" cy="168" r="6"/><circle cx="887" cy="216" r="6"/><circle cx="887" cy="264" r="6"/><circle cx="887" cy="304" r="6"/>
+  </g>
+  <g stroke="#c9c9c2" stroke-width="1">
+    <line x1="60" y1="60" x2="840" y2="60"/><line x1="60" y1="120" x2="840" y2="120"/>
+    <line x1="60" y1="180" x2="840" y2="180"/><line x1="60" y1="240" x2="840" y2="240"/>
+    <line x1="200" y1="40" x2="200" y2="270"/><line x1="360" y1="40" x2="360" y2="270"/>
+    <line x1="520" y1="40" x2="520" y2="270"/><line x1="680" y1="40" x2="680" y2="270"/>
+  </g>
+  <line x1="60" y1="270" x2="840" y2="270" stroke="#1a1a1a" stroke-width="2"/>
+  <line x1="60" y1="40" x2="60" y2="270" stroke="#1a1a1a" stroke-width="2"/>
+  <g stroke="#1a1a1a" stroke-width="1" stroke-dasharray="5 6" opacity=".55">
+    <line x1="330" y1="40" x2="330" y2="270"/><line x1="600" y1="40" x2="600" y2="270"/>
+  </g>
+  <path fill="none" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" d="M60 214 L104 200 L148 208 L192 176 L236 186 L280 150 L324 158 L368 196 L412 210 L456 182 L500 190 L544 154 L588 132 L632 148 L676 106 L720 118 L764 84 L808 96 L840 70"/>
+  <path fill="none" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="8 6" opacity=".62" stroke-linejoin="round" d="M60 220 L104 205 L148 199 L192 184 L236 178 L280 158 L324 166 L368 188 L412 202 L456 190 L500 182 L544 162 L588 140 L632 142 L676 116 L720 112 L764 92 L808 90 L840 78"/>
+  <g font-family="Courier New, monospace" font-size="13" fill="#1a1a1a">
+    <text x="60" y="30">LSTM - PREDICTED VS ACTUAL CLOSE</text>
+    <text x="600" y="30" opacity=".7">DIRECTIONAL ACC. ~92%</text>
+    <text x="150" y="292" opacity=".6">REGIME I</text><text x="420" y="292" opacity=".6">REGIME II</text><text x="680" y="292" opacity=".6">REGIME III</text>
+  </g>
+  <g font-family="Courier New, monospace" font-size="12" fill="#1a1a1a" opacity=".75">
+    <rect x="620" y="196" width="14" height="3"/><text x="642" y="203">ACTUAL</text>
+    <rect x="620" y="216" width="14" height="3" opacity=".55"/><text x="642" y="223">PREDICTED</text>
+  </g>
+</svg>

@@ -1,0 +1,507 @@
+/* ===========================================================
+   ANSH RAJPUT — DATA PORTFOLIO
+   Palette sampled per design spec, Section 2.
+   All interactive pieces are hand-written (no Magic UI MCP
+   was reachable in this environment — see README notes).
+   =========================================================== */
+
+:root {
+  /* Section 1 — hero "interview form" */
+  --hero-bg:        #aebbbf;
+  --hero-floor:     #bbc5cc;
+  --hero-text:      #1a1a1a;
+
+  /* Section 2 — "I WORK WITH" split panel */
+  --panel-dark:     #000000;
+  --panel-paper:    #eeeeee;
+  --text-white:     #ffffff;
+  --text-grey-dim:  #6b6b6b;
+  --ink-blue-black: #1c1c1c;
+
+  /* Section 3 — project grid */
+  --grid-bg:        #000000;
+
+  --mono: "IBM Plex Mono", "Courier New", monospace;
+  --display: "Archivo Black", "Helvetica Neue", Arial Black, Arial, sans-serif;
+  --hand: "Caveat", "Comic Sans MS", cursive;
+  --marker: "Permanent Marker", "Caveat", cursive;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--grid-bg);
+  color: var(--hero-text);
+  font-family: var(--mono);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+
+/* ===========================================================
+   SECTION 1 — HERO
+   =========================================================== */
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  background: var(--hero-bg);
+  overflow: hidden;
+  padding: 34px clamp(18px, 4vw, 56px) 0;
+  isolation: isolate;
+}
+
+/* floor / wall break at ~80% down — soft gradient, no hard line */
+.hero-floor {
+  position: absolute;
+  inset: 58% 0 0 0;
+  background: linear-gradient(to bottom,
+              rgba(187, 197, 204, 0) 0%,
+              var(--hero-floor) 38%,
+              #a7b3ba 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-meta, .hero-honesty, .hero-title { position: relative; z-index: 2; }
+
+.hero-meta {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr;
+  gap: clamp(16px, 4vw, 60px);
+  font-size: 11px;
+  letter-spacing: .06em;
+  line-height: 1.75;
+}
+
+.hero-meta p { margin: 0; }
+.lab { opacity: .5; }
+.meta-sub { opacity: .55; }
+.meta-col--reach { text-align: right; }
+.meta-col--reach a { text-decoration: none; border-bottom: 1px solid rgba(26,26,26,.28); }
+.meta-col--reach a:hover { border-bottom-color: var(--hero-text); }
+
+.hero-honesty {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 4vw, 48px);
+  margin: clamp(22px, 4vw, 42px) 0 0 auto;
+  max-width: 620px;
+  font-size: 11px;
+  letter-spacing: .06em;
+  line-height: 1.85;
+}
+.hero-honesty p { margin: 0; }
+.hero-honesty .lab { display: block; margin-bottom: 6px; }
+
+/* --- headline --- */
+.hero-title {
+  position: relative;
+  text-align: center;
+  margin-top: clamp(26px, 5vh, 60px);
+  pointer-events: none;
+}
+
+.scribble-note {
+  position: relative;
+  display: inline-block;
+  margin-bottom: -10px;
+  transform: rotate(-6deg);
+}
+.scribble-text {
+  font-family: var(--hand);
+  font-size: clamp(26px, 3.4vw, 42px);
+  color: var(--ink-blue-black);
+}
+.scribble-arrow {
+  position: absolute;
+  left: 78%;
+  top: 62%;
+  width: clamp(48px, 5vw, 72px);
+  transform: rotate(8deg);
+}
+
+.headline {
+  font-family: var(--display);
+  font-size: clamp(46px, 11.4vw, 186px);
+  line-height: .9;
+  white-space: nowrap;
+  letter-spacing: -.02em;
+  margin: 0;
+  color: var(--hero-text);
+}
+
+/* --- draggable staging area --- */
+.stage {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.draggable {
+  position: absolute;
+  /* JS writes --dx/--dy while dragging; --extra keeps each prop's own
+     rotation/flip so the two never overwrite each other. */
+  --dx: 0px;
+  --dy: 0px;
+  --extra: translateZ(0);
+  transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) var(--extra);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 12px 18px rgba(26, 32, 38, .16));
+  transition: filter .18s ease;
+}
+.draggable img { pointer-events: none; }
+.draggable.is-dragging { cursor: grabbing; filter: drop-shadow(0 22px 30px rgba(26,32,38,.26)); }
+
+.prop-printout { width: clamp(320px, 46vw, 720px); z-index: 3; }
+/* laid on the "floor" in trapezoidal perspective, like the source rug */
+.prop-printout img {
+  transform: perspective(760px) rotateX(58deg) scaleY(1.35);
+  transform-origin: center bottom;
+}
+
+.prop-cup      { width: clamp(58px, 7vw, 104px); z-index: 6; }
+.prop-photo    { width: clamp(120px, 12vw, 170px); z-index: 7; }
+.prop-signature{ width: clamp(150px, 16vw, 250px); z-index: 5; opacity: .92; --extra: rotate(-4deg); }
+.prop-plant-l  { width: clamp(96px, 11vw, 168px); z-index: 4; }
+.prop-plant-r  { width: clamp(96px, 11vw, 168px); z-index: 4; --extra: scaleX(-1); }
+.prop-dice     { width: clamp(58px, 6vw, 96px); z-index: 6; }
+.prop-laptop   { width: clamp(80px, 9vw, 138px); z-index: 6; }
+
+.photo-frame { position: relative; }
+.photo-real {
+  width: 100%;
+  border: 4px solid var(--hero-text);
+  background: #c3cdd1;
+}
+.photo-mask {
+  position: absolute;
+  inset: -6px -6px auto -6px;
+  width: calc(100% + 12px);
+  --dx: 0px;
+  --dy: 0px;
+  transform: translate(var(--dx), var(--dy)) rotate(-2deg);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: opacity .45s ease;
+}
+.photo-mask.is-dragging { cursor: grabbing; transition: opacity .45s ease; }
+.photo-mask.is-lifted { opacity: 0; pointer-events: none; }
+
+.hero-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: .22em;
+  opacity: .45;
+  z-index: 8;
+  transition: opacity .4s ease;
+}
+.hero-hint.is-hidden { opacity: 0; }
+
+/* ===========================================================
+   SECTION 2 — I WORK WITH
+   =========================================================== */
+
+.split { display: flex; min-height: 100vh; flex-wrap: wrap; }
+
+.split-left,
+.split-right {
+  flex: 1 1 420px;
+  padding: clamp(30px, 4vw, 58px);
+  display: flex;
+  flex-direction: column;
+}
+
+.split-left { background: var(--panel-dark); color: var(--text-white); }
+
+.marker-head {
+  font-family: var(--marker);
+  font-weight: 400;
+  font-size: clamp(30px, 4vw, 54px);
+  margin: 0 0 clamp(22px, 3vw, 40px);
+  color: var(--text-white);
+  transform: rotate(-1.5deg);
+}
+
+.skill-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--display);
+  /* sized so the longest item ("INFINITE HYPERPARAMETER TUNING") still
+     holds a single line inside the half-width column */
+  font-size: clamp(19px, 2.15vw, 33px);
+  line-height: 1.16;
+  letter-spacing: -.015em;
+  white-space: nowrap;
+}
+.js .skill-list li {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .5s ease-out, transform .5s ease-out;
+}
+.is-revealed .skill-list li { opacity: 1; transform: none; }
+.skill-list li.dim { color: var(--text-grey-dim); }
+
+.stack-strip {
+  margin: auto 0 0;
+  padding-top: clamp(28px, 4vw, 48px);
+  font-size: 10px;
+  line-height: 2;
+  letter-spacing: .1em;
+  color: var(--text-grey-dim);
+}
+
+/* --- paper card --- */
+.split-right {
+  position: relative;
+  background: var(--panel-paper);
+  color: var(--ink-blue-black);
+}
+.split-right::after {
+  /* faint printed-page rule, keeps the "form" language of the hero */
+  content: "";
+  position: absolute;
+  inset: clamp(16px, 2vw, 26px);
+  border: 1px solid rgba(28, 28, 28, .13);
+  pointer-events: none;
+}
+
+.paper-label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: .18em;
+  color: var(--hero-text);
+  opacity: .55;
+}
+
+.paper-doodle {
+  width: 60px;
+  margin: clamp(26px, 5vw, 56px) auto clamp(18px, 3vw, 34px);
+  transform: rotate(-7deg);
+}
+
+.statement {
+  font-family: var(--hand);
+  font-size: clamp(24px, 2.8vw, 38px);
+  line-height: 1.5;
+  color: var(--ink-blue-black);
+  text-align: center;
+  max-width: 34ch;
+  margin: 0 auto;
+}
+.statement p { margin: 0 0 .35em; }
+.statement p:nth-child(odd) {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1vw, 12px);
+  letter-spacing: .18em;
+  opacity: .6;
+}
+
+.slot {
+  font-family: var(--hand);
+  font-size: clamp(22px, 2.4vw, 32px);
+  letter-spacing: 0;
+  opacity: 1;
+  padding: 0 .35em;
+  border-bottom: 2px solid var(--ink-blue-black);
+}
+
+/* hand-marked emphasis: an SVG ellipse laid over the phrase */
+.circled { position: relative; display: inline-block; padding: 0 .18em; margin-right: .22em; }
+.circled::after {
+  content: "";
+  position: absolute;
+  inset: -18% -8%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 80' preserveAspectRatio='none'%3E%3Cpath d='M132 6C56 2 8 20 6 42c-2 24 62 34 122 32 58-2 108-14 106-34C232 22 190 8 118 6' fill='none' stroke='%231c1c1c' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+  pointer-events: none;
+}
+
+.underlined {
+  background: linear-gradient(to top, rgba(28,28,28,.9) 0, rgba(28,28,28,.9) 2px, transparent 2px);
+  padding-bottom: 2px;
+}
+
+.paper-role { margin: auto 0 0; padding-top: clamp(30px, 4vw, 52px); }
+.role-line { margin: 10px 0 2px; font-size: 12px; letter-spacing: .04em; }
+.role-sub { margin: 0; font-size: 11px; letter-spacing: .04em; opacity: .55; }
+
+.paper-sparkle {
+  position: absolute;
+  right: clamp(30px, 4vw, 62px);
+  bottom: clamp(74px, 8vw, 118px);
+  width: 46px;
+  transform: rotate(12deg);
+  opacity: .8;
+}
+
+.paper-footer {
+  margin: clamp(22px, 3vw, 34px) 0 0;
+  font-size: 10px;
+  letter-spacing: .18em;
+  opacity: .45;
+}
+
+/* scroll reveal — the hidden state is applied only when JS is running, so
+   the content is readable if the script never loads */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .5s ease-out, transform .5s ease-out;
+}
+.reveal.is-revealed { opacity: 1; transform: none; }
+
+/* ===========================================================
+   SECTION 3 — PROJECT GRID
+   =========================================================== */
+
+.grid-section {
+  position: relative;
+  background: var(--grid-bg);
+  padding: clamp(46px, 7vw, 96px) clamp(14px, 2.5vw, 34px) 0;
+}
+
+.grid-head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 clamp(20px, 3vw, 34px);
+}
+.grid-label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: .22em;
+  color: #6b6b6b;
+}
+
+/* The spec calls for column-count: 4. With exactly 6 tiles the browser's
+   column balancer packs them 2/2/2 and leaves the fourth column empty, so
+   the grid runs 3-up at desktop — same masonry, no dead column. Change the
+   4 back here if more tiles get added. */
+.grid { column-count: 3; column-gap: 16px; }
+
+.tile {
+  position: relative;
+  /* inline-block + width:100% makes multicol treat each tile as one
+     atomic box, so a tile never fragments across two columns */
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 16px;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  overflow: hidden;
+  background: #0d0f12;
+  transition: opacity .55s ease-out, transform .55s ease-out;
+}
+.js .tile { opacity: 0; transform: translateY(22px); }
+.tile.is-revealed { opacity: 1; transform: none; }
+.tile img { width: 100%; height: auto; transition: transform .6s cubic-bezier(.2,.7,.3,1); }
+.tile:hover img { transform: scale(1.035); }
+
+.caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 56px 18px 20px;
+  background: linear-gradient(to top,
+              rgba(0,0,0,.95) 0%, rgba(0,0,0,.88) 32%,
+              rgba(0,0,0,.6) 66%, transparent 100%);
+  color: #fff;
+}
+.caption h3 {
+  margin: 0 0 4px;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(13px, 1.15vw, 17px);
+  letter-spacing: -.01em;
+}
+.caption p { margin: 0; font-size: 10px; letter-spacing: .08em; opacity: .68; }
+
+.grid-vignette {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 150px;
+  z-index: 9;
+  background: linear-gradient(to bottom, transparent, #000);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s linear;
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  background: var(--grid-bg);
+  color: #6b6b6b;
+  padding: clamp(34px, 5vw, 64px) clamp(14px, 2.5vw, 34px);
+  font-size: 10px;
+  letter-spacing: .22em;
+}
+.site-footer p { margin: 0; }
+.site-footer nav { display: flex; gap: 22px; }
+.site-footer a { text-decoration: none; }
+.site-footer a:hover { color: #fff; }
+
+/* ===========================================================
+   RESPONSIVE
+   =========================================================== */
+
+@media (max-width: 1180px) { .grid { column-count: 2; } }
+
+@media (max-width: 900px) {
+  .hero { padding-bottom: 40px; }
+  .hero-meta { grid-template-columns: 1fr 1fr; }
+  .meta-col--reach { grid-column: 1 / -1; text-align: left; }
+  .hero-honesty { max-width: none; }
+  .grid { column-count: 2; }
+  .split-left, .split-right { flex: 1 1 100%; }
+}
+
+@media (max-width: 620px) {
+  /* taller hero so the props get a staging area of their own below the
+     headline instead of sitting on top of it */
+  .hero { min-height: 108vh; }
+  .hero-meta { grid-template-columns: 1fr; }
+  .hero-honesty { grid-template-columns: 1fr; }
+  .headline { font-size: clamp(30px, 11vw, 74px); }
+  .grid { column-count: 1; }
+  /* props stay draggable but shrink so the small screen isn't buried */
+  .prop-signature, .prop-plant-l, .prop-plant-r { opacity: .5; }
+  .prop-photo { width: 104px; }
+  .prop-printout { width: 300px; }
+  .prop-plant-l, .prop-plant-r { width: 76px; }
+  .prop-signature { width: 128px; }
+  .prop-dice { width: 50px; }
+  .prop-laptop { width: 70px; }
+  .prop-cup { width: 48px; }
+
+  /* the single-line rule only works while the column is wide; on a phone
+     the long items wrap instead of pushing the panel off-screen */
+  .skill-list { white-space: normal; font-size: clamp(17px, 5.4vw, 26px); }
+  .stack-strip { overflow-wrap: break-word; }
+  /* keep the doodle out of the CURRENTLY block once the card gets narrow */
+  .paper-sparkle { top: 60%; bottom: auto; right: 20px; width: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal, .tile, .skill-list li { transition: none; opacity: 1; transform: none; }
+  .tile:hover img { transform: none; }
+}

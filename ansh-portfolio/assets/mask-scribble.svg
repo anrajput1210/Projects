@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240">
+  <g fill="none" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 26 C14 92 16 160 24 212 C86 222 140 220 178 210 C186 152 184 84 176 28 C120 18 66 18 22 26 Z" fill="#f2ede2"/>
+    <path d="M26 32 C20 96 22 158 30 206" opacity=".35" stroke-width="2"/>
+  </g>
+  <g fill="none" stroke="#1a1a1a" stroke-width="5" stroke-linecap="round">
+    <circle cx="100" cy="112" r="58" stroke-width="4.5"/>
+    <path d="M74 96 q6 -12 14 0"/>
+    <path d="M112 96 q6 -12 14 0"/>
+    <path d="M72 134 q28 26 56 0"/>
+  </g>
+  <g fill="none" stroke="#1a1a1a" stroke-width="2.4" opacity=".55" stroke-linecap="round">
+    <path d="M40 186 q34 -12 66 2 q30 12 56 -4"/>
+    <path d="M44 198 q40 -10 72 4 q26 10 48 -6"/>
+  </g>
+  <text x="100" y="206" font-family="Courier New, monospace" font-size="13" text-anchor="middle" fill="#1a1a1a" opacity=".7">DRAG ME OFF</text>
+</svg>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1170" width="800" height="1170">
+  <rect width="800" height="1170" fill="#15181c"/>
+  <text x="60" y="64" font-family="Courier New, monospace" font-size="16" fill="#9aa5ab">MASTER DATA QUALITY / REPORTING</text>
+  <g>
+    <rect x="60" y="96" width="212" height="120" fill="#1e2329" stroke="#333a41" stroke-width="1.5"/>
+    <rect x="294" y="96" width="212" height="120" fill="#1e2329" stroke="#333a41" stroke-width="1.5"/>
+    <rect x="528" y="96" width="212" height="120" fill="#1e2329" stroke="#333a41" stroke-width="1.5"/>
+  </g>
+  <g font-family="Courier New, monospace" font-size="12" fill="#6d767c">
+    <text x="80" y="128">RECORDS CLEANED</text><text x="314" y="128">DUPLICATE RATE</text><text x="548" y="128">REFRESH</text>
+  </g>
+  <g font-family="Archivo Black, Arial Black, sans-serif" font-size="40" fill="#eef1f0">
+    <text x="80" y="184">1.2M</text><text x="314" y="184">0.4%</text><text x="548" y="184">DAILY</text>
+  </g>
+  <text x="60" y="268" font-family="Courier New, monospace" font-size="13" fill="#6d767c">VALIDATION FAILURES BY SOURCE TABLE</text>
+  <g fill="#8fa38c">
+    <rect x="60" y="292" width="86" height="180"/><rect x="166" y="352" width="86" height="120"/><rect x="272" y="316" width="86" height="156"/><rect x="378" y="396" width="86" height="76"/><rect x="484" y="372" width="86" height="100"/><rect x="590" y="424" width="86" height="48"/>
+  </g>
+  <rect x="60" y="292" width="86" height="180" fill="#e0b062"/>
+  <line x1="60" y1="472" x2="740" y2="472" stroke="#5d686f" stroke-width="2"/>
+  <g font-family="Courier New, monospace" font-size="11" fill="#6d767c">
+    <text x="76" y="496">VENDOR</text><text x="184" y="496">ITEM</text><text x="286" y="496">CUSTOMER</text><text x="396" y="496">PRICE</text><text x="500" y="496">INVOICE</text><text x="608" y="496">LEDGER</text>
+  </g>
+  <text x="60" y="566" font-family="Courier New, monospace" font-size="13" fill="#6d767c">PIPELINE</text>
+  <g>
+    <rect x="60" y="588" width="150" height="56" fill="#1e2329" stroke="#8fa38c" stroke-width="1.5"/>
+    <rect x="238" y="588" width="150" height="56" fill="#1e2329" stroke="#8fa38c" stroke-width="1.5"/>
+    <rect x="416" y="588" width="150" height="56" fill="#1e2329" stroke="#8fa38c" stroke-width="1.5"/>
+    <rect x="594" y="588" width="146" height="56" fill="#1e2329" stroke="#e0b062" stroke-width="1.5"/>
+  </g>
+  <g font-family="Courier New, monospace" font-size="12" fill="#cfd6d9">
+    <text x="80" y="622">POSTGRESQL</text><text x="258" y="622">POWER QUERY</text><text x="436" y="622">DAX MODEL</text><text x="614" y="622">POWER BI</text>
+  </g>
+  <g stroke="#4a545b" stroke-width="2" fill="none">
+    <path d="M210 616 h28"/><path d="M388 616 h28"/><path d="M566 616 h28"/>
+  </g>
+  <text x="60" y="716" font-family="Courier New, monospace" font-size="13" fill="#6d767c">RECORD VOLUME TREND</text>
+  <path d="M60 856 L173 828 L286 840 L399 792 L512 806 L625 760 L740 738" fill="none" stroke="#eef1f0" stroke-width="3"/>
+  <path d="M60 856 L173 828 L286 840 L399 792 L512 806 L625 760 L740 738 L740 900 L60 900 Z" fill="#eef1f0" opacity=".08"/>
+  <line x1="60" y1="900" x2="740" y2="900" stroke="#5d686f" stroke-width="2"/>
+  <g font-family="Courier New, monospace" font-size="11" fill="#6d767c">
+    <text x="60" y="926">JAN</text><text x="286" y="926">MAR</text><text x="512" y="926">MAY</text><text x="700" y="926">JUL</text>
+  </g>
+</svg>

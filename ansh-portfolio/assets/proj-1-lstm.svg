@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 730" width="800" height="730">
+  <rect width="800" height="730" fill="#14171a"/>
+  <g stroke="#2c3237" stroke-width="1">
+    <line x1="70" y1="110" x2="740" y2="110"/><line x1="70" y1="200" x2="740" y2="200"/>
+    <line x1="70" y1="290" x2="740" y2="290"/><line x1="70" y1="380" x2="740" y2="380"/>
+    <line x1="200" y1="70" x2="200" y2="460"/><line x1="330" y1="70" x2="330" y2="460"/>
+    <line x1="460" y1="70" x2="460" y2="460"/><line x1="590" y1="70" x2="590" y2="460"/>
+  </g>
+  <g stroke="#4a545b" stroke-width="1.5" stroke-dasharray="6 7">
+    <line x1="290" y1="70" x2="290" y2="460"/><line x1="530" y1="70" x2="530" y2="460"/>
+  </g>
+  <line x1="70" y1="460" x2="740" y2="460" stroke="#5d686f" stroke-width="2"/>
+  <line x1="70" y1="70" x2="70" y2="460" stroke="#5d686f" stroke-width="2"/>
+  <path fill="none" stroke="#eef1f0" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" d="M70 372 L108 350 L146 362 L184 306 L222 322 L260 262 L298 276 L336 340 L374 360 L412 312 L450 328 L488 268 L526 232 L564 258 L602 186 L640 206 L678 150 L716 168 L740 128"/>
+  <path fill="none" stroke="#8fa38c" stroke-width="2.5" stroke-dasharray="9 7" stroke-linejoin="round" d="M70 382 L108 358 L146 348 L184 320 L222 310 L260 276 L298 290 L336 326 L374 348 L412 328 L450 314 L488 282 L526 246 L564 248 L602 202 L640 194 L678 164 L716 158 L740 142"/>
+  <g font-family="Courier New, monospace" font-size="15" fill="#9aa5ab">
+    <text x="70" y="46">PREDICTED VS ACTUAL CLOSE / 3 REGIMES</text>
+    <text x="126" y="492">REGIME I</text><text x="366" y="492">REGIME II</text><text x="606" y="492">REGIME III</text>
+  </g>
+  <g font-family="Courier New, monospace" font-size="14">
+    <rect x="560" y="86" width="18" height="3.5" fill="#eef1f0"/><text x="586" y="93" fill="#eef1f0">ACTUAL</text>
+    <rect x="560" y="106" width="18" height="3.5" fill="#8fa38c"/><text x="586" y="113" fill="#8fa38c">PREDICTED</text>
+  </g>
+</svg>

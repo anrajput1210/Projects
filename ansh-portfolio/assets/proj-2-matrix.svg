@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 960" width="800" height="960">
+  <rect width="800" height="960" fill="#16181c"/>
+  <text x="70" y="72" font-family="Courier New, monospace" font-size="16" fill="#9aa5ab">USER x ITEM RATING MATRIX</text>
+  <g font-family="Courier New, monospace" font-size="13" fill="#6d767c">
+    <text x="70" y="118">USER</text><text x="150" y="118">M1</text><text x="230" y="118">M2</text><text x="310" y="118">M3</text><text x="390" y="118">M4</text><text x="470" y="118">M5</text><text x="550" y="118">M6</text><text x="630" y="118">M7</text><text x="710" y="118">M8</text>
+  </g>
+  <g id="cells"></g>
+  <g>
+    <rect x="140" y="140" width="60" height="60" fill="#eef1f0" opacity=".92"/><rect x="220" y="140" width="60" height="60" fill="#8fa38c" opacity=".55"/><rect x="300" y="140" width="60" height="60" fill="#2a2f34"/><rect x="380" y="140" width="60" height="60" fill="#8fa38c" opacity=".8"/><rect x="460" y="140" width="60" height="60" fill="#2a2f34"/><rect x="540" y="140" width="60" height="60" fill="#eef1f0" opacity=".65"/><rect x="620" y="140" width="60" height="60" fill="#2a2f34"/><rect x="700" y="140" width="60" height="60" fill="#8fa38c" opacity=".35"/>
+    <rect x="140" y="220" width="60" height="60" fill="#8fa38c" opacity=".4"/><rect x="220" y="220" width="60" height="60" fill="#2a2f34"/><rect x="300" y="220" width="60" height="60" fill="#eef1f0" opacity=".8"/><rect x="380" y="220" width="60" height="60" fill="#2a2f34"/><rect x="460" y="220" width="60" height="60" fill="#8fa38c" opacity=".7"/><rect x="540" y="220" width="60" height="60" fill="#2a2f34"/><rect x="620" y="220" width="60" height="60" fill="#eef1f0" opacity=".5"/><rect x="700" y="220" width="60" height="60" fill="#2a2f34"/>
+    <rect x="140" y="300" width="60" height="60" fill="#2a2f34"/><rect x="220" y="300" width="60" height="60" fill="#eef1f0" opacity=".7"/><rect x="300" y="300" width="60" height="60" fill="#8fa38c" opacity=".65"/><rect x="380" y="300" width="60" height="60" fill="#eef1f0" opacity=".95"/><rect x="460" y="300" width="60" height="60" fill="#2a2f34"/><rect x="540" y="300" width="60" height="60" fill="#8fa38c" opacity=".45"/><rect x="620" y="300" width="60" height="60" fill="#2a2f34"/><rect x="700" y="300" width="60" height="60" fill="#eef1f0" opacity=".6"/>
+    <rect x="140" y="380" width="60" height="60" fill="#8fa38c" opacity=".75"/><rect x="220" y="380" width="60" height="60" fill="#2a2f34"/><rect x="300" y="380" width="60" height="60" fill="#2a2f34"/><rect x="380" y="380" width="60" height="60" fill="#8fa38c" opacity=".3"/><rect x="460" y="380" width="60" height="60" fill="#eef1f0" opacity=".85"/><rect x="540" y="380" width="60" height="60" fill="#2a2f34"/><rect x="620" y="380" width="60" height="60" fill="#8fa38c" opacity=".6"/><rect x="700" y="380" width="60" height="60" fill="#2a2f34"/>
+    <rect x="140" y="460" width="60" height="60" fill="#2a2f34"/><rect x="220" y="460" width="60" height="60" fill="#8fa38c" opacity=".5"/><rect x="300" y="460" width="60" height="60" fill="#eef1f0" opacity=".55"/><rect x="380" y="460" width="60" height="60" fill="#2a2f34"/><rect x="460" y="460" width="60" height="60" fill="#8fa38c" opacity=".85"/><rect x="540" y="460" width="60" height="60" fill="#eef1f0" opacity=".75"/><rect x="620" y="460" width="60" height="60" fill="#2a2f34"/><rect x="700" y="460" width="60" height="60" fill="#8fa38c" opacity=".4"/>
+    <rect x="140" y="540" width="60" height="60" fill="#eef1f0" opacity=".6"/><rect x="220" y="540" width="60" height="60" fill="#2a2f34"/><rect x="300" y="540" width="60" height="60" fill="#8fa38c" opacity=".7"/><rect x="380" y="540" width="60" height="60" fill="#eef1f0" opacity=".45"/><rect x="460" y="540" width="60" height="60" fill="#2a2f34"/><rect x="540" y="540" width="60" height="60" fill="#2a2f34"/><rect x="620" y="540" width="60" height="60" fill="#8fa38c" opacity=".9"/><rect x="700" y="540" width="60" height="60" fill="#eef1f0" opacity=".5"/>
+  </g>
+  <g stroke="#e0b062" stroke-width="3" fill="none">
+    <rect x="296" y="216" width="68" height="68"/><rect x="456" y="376" width="68" height="68"/><rect x="616" y="536" width="68" height="68"/>
+  </g>
+  <g font-family="Courier New, monospace" font-size="14" fill="#e0b062">
+    <text x="70" y="668">PREDICTED FOR UNSEEN PAIRS</text>
+  </g>
+  <g font-family="Courier New, monospace" font-size="13" fill="#6d767c">
+    <text x="70" y="712">COLLABORATIVE FILTERING</text>
+    <text x="70" y="740">MATRIX FACTORIZATION / COSINE SIMILARITY</text>
+  </g>
+</svg>
