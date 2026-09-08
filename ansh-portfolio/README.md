@@ -48,9 +48,10 @@ actual PDF in several places; the PDF won each time:
   the regime chart uses **Matplotlib**, ranking quality used **precision@10 and
   recall@10**, and the Power BI work **drove adoption of standardized validation checks**)
 
-The resume's Grant Thornton entry carries **six** bullets; the case study shows the three
-the spec selected. The other three (tool benchmarking with a 5-person team, process maps
-cutting onboarding ~20%, and 5+ stakeholder review sessions) are available to add.
+**The project grid holds personal projects only.** Grant Thornton is an internship, not a
+project, so it has no tile - the grid carries the five projects from the resume's PROJECTS
+section. The internship still appears where it belongs, as work history in the
+`PREVIOUSLY` block on the positioning card.
 
 Two phrasings are load-bearing and should not be softened:
 
@@ -139,9 +140,9 @@ Nothing important is locked behind JS or the network:
    would carry a code comment; nothing does. **Worth redoing that pass** in an environment
    where the MCP is available — the strip and the expansion are the two places it would
    most likely have earned its keep.
-2. **Grid runs 3 columns, not 4.** With exactly 6 tiles the browser's column balancer packs
-   them 2/2/2 and leaves the fourth column empty. One line in `style.css` (`.grid`) flips it
-   back to 4 if more tiles get added.
+2. **Grid runs 3 columns, not 4.** The browser's column balancer leaves a fourth column
+   empty at this tile count. One line in `style.css` (`.grid`) flips it back to 4 if enough
+   tiles get added to fill it.
 3. **Skill list is ~33px, not the 48–64px the spec suggests.** "MASTER DATA MANAGEMENT" is
    22 characters; at 48px+ it cannot hold one line in a half-viewport column. Below 620px
    it wraps instead.
