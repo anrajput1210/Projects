@@ -256,10 +256,8 @@ a { color: inherit; }
   filter: drop-shadow(0 16px 20px rgba(28, 38, 46, .22));
   transition: filter .18s ease;
 }
-/* props are dragged by their wrapper, so the image itself is inert -
-   EXCEPT the mask, which is its own drag target. Without the :not() the
-   mask inherits pointer-events:none here and cannot be grabbed at all. */
-.draggable img:not(.photo-mask) { pointer-events: none; }
+/* props are dragged by their wrapper, so the image itself is inert */
+.draggable img { pointer-events: none; }
 .draggable.is-dragging { cursor: grabbing; filter: drop-shadow(0 22px 30px rgba(26,32,38,.26)); }
 
 .prop-printout { width: clamp(320px, 46vw, 720px); z-index: 3; }
@@ -294,48 +292,12 @@ a { color: inherit; }
 .prop-printout::after { width: 88%; height: 22%; bottom: 4%; filter: blur(13px); }
 
 .prop-cup      { width: clamp(58px, 7vw, 104px); z-index: 6; }
-.prop-photo    { width: clamp(120px, 12vw, 170px); z-index: 7; }
 .prop-signature{ width: clamp(150px, 16vw, 250px); z-index: 5; opacity: .92; --extra: rotate(-4deg); }
 .prop-plant-l  { width: clamp(96px, 11vw, 168px); z-index: 4; }
 .prop-plant-r  { width: clamp(96px, 11vw, 168px); z-index: 4; --extra: scaleX(-1); }
 .prop-dice     { width: clamp(58px, 6vw, 96px); z-index: 6; }
 .prop-laptop   { width: clamp(80px, 9vw, 138px); z-index: 6; }
 
-.photo-frame { position: relative; }
-.photo-real {
-  width: 100%;
-  /* the source frame is square; crop to the portrait shape the spec calls
-     for and bias upward so the crop lands on the face, not the jacket */
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  object-position: center 18%;
-  border: 4px solid var(--hero-text);
-  background: #c3cdd1;
-}
-.photo-mask {
-  position: absolute;
-  /* sized and placed to sit over the face in the headshot: the crop puts
-     the head at roughly 55% across and 26% down, about 50% of the frame
-     width. Drag it off and the face underneath is what gets revealed. */
-  left: 55%;
-  top: 26%;
-  width: 52%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  /* the global img max-width would otherwise cap this back to the photo box */
-  max-width: none;
-  pointer-events: auto;
-  z-index: 2;
-  --dx: 0px;
-  --dy: 0px;
-  transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) rotate(-4deg);
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  transition: opacity .3s ease;
-}
-.photo-mask.is-dragging { cursor: grabbing; transition: opacity .3s ease; }
-.photo-mask.is-lifted { opacity: 0; pointer-events: none; }
 
 .hero-hint {
   position: absolute;
@@ -671,7 +633,6 @@ a { color: inherit; }
   .grid { column-count: 1; }
   /* props stay draggable but shrink so the small screen isn't buried */
   .prop-signature, .prop-plant-l, .prop-plant-r { opacity: .5; }
-  .prop-photo { width: 104px; }
   .prop-printout { width: 300px; }
   .prop-plant-l, .prop-plant-r { width: 76px; }
   .prop-signature { width: 128px; }

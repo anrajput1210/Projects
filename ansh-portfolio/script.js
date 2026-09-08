@@ -23,8 +23,6 @@
 
   var stage = document.getElementById('stage');
   var hint = document.getElementById('heroHint');
-  var mask = document.getElementById('photoMask');
-  var MASK_REVEAL_DISTANCE = 80; // px, per spec
   var topZ = 20;
   var hasDragged = false;
 
@@ -105,26 +103,6 @@
 
   if (stage) {
     document.querySelectorAll('.draggable').forEach(function (el) { makeDraggable(el); });
-  }
-
-  /* The scribbled mask over the headshot: same drag engine, plus the
-     one-way reveal. Dragged more than 80px from its start, it fades
-     out for good and the photo underneath stays visible. */
-  if (mask) {
-    var revealed = false;
-    makeDraggable(mask, {
-      stopBubble: true,   // don't drag the photo along with the mask
-      keepZ: true,
-      onMove: function (dx, dy) {
-        if (revealed) return;
-        if (Math.sqrt(dx * dx + dy * dy) > MASK_REVEAL_DISTANCE) {
-          revealed = true;
-          mask.dataset.locked = 'true';
-          mask.classList.add('is-lifted');
-          mask.setAttribute('aria-hidden', 'true');
-        }
-      }
-    });
   }
 
   /* The headline drags as one block - both words plus the handwritten

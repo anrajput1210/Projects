@@ -8,7 +8,7 @@ index.html    hero, connect strip, skills split, project grid, case-study panel
 style.css     palette + layout (spec Section 2 palette used verbatim)
 script.js     drag props, mask reveal, scroll reveals, vignette,
               live GitHub layer, tile tilt, FLIP case-study expansion
-assets/       headshot, smiley patch + 18 hand-drawn SVGs
+assets/       resume PDF + 17 hand-drawn SVGs
 ```
 
 ## Assets you should replace
@@ -17,12 +17,10 @@ Everything renders today, but some pieces are still stand-ins:
 
 | File | Status | Notes |
 |---|---|---|
-| `assets/headshot.jpg` | **Real** | Supplied by Ansh. Square 400×400, cropped to 4:5 via `object-fit` with `object-position: center 18%` so the crop lands on the face. Swap in a portrait-orientation original and that bias can be dropped. |
 | `assets/Ansh_Rajput_Data_Analyst.pdf` | **Real** | Ansh's resume, linked by the Resume card. Replace this file in place when the resume is updated — the path is what the card points at, so no code change is needed. |
 | `assets/resume-thumb.svg` | Placeholder | A drawn approximation of the resume page, used for the card preview — it mirrors the real document's section order but is not a render of it. No PDF rasteriser (Ghostscript / pdftoppm / ImageMagick) was available on this machine to produce a true first-page image; install one and replace this file for an exact preview. |
 | `assets/signature.svg` | Placeholder | Hand-drawn approximation; replace with a scan. |
 | `assets/proj-*.svg` | Placeholder | Generated from resume metrics, not screenshots of the actual work. Any aspect ratio works; keep ~170 units of quiet space at the bottom for the caption band. |
-| `assets/smiley.png` | **Real** | Supplied by Ansh. The source PNG sat on a white studio background; that background was flood-filled to transparent from the borders and the result cropped square, so the patch keeps its own drop shadow but carries no white box. |
 | `assets/caret-scribble.svg`, `assets/face-doodle.svg` | Keep | The hand-drawn caret and little face that sit with the SOLVING ? annotation over the headline. |
 | `assets/contrib-scaffold.svg` | Keep | Deliberately uniform — it is the placeholder shown until the live GitHub graph loads, so it must not imply activity data that was never fetched. |
 
@@ -73,11 +71,6 @@ Two phrasings are load-bearing and should not be softened:
 - `.stage` is a positioning container only and is `pointer-events: none`. It spans the
   whole hero, so if it took events it would swallow every click meant for anything painted
   beneath it. The props opt back in individually.
-- **Mask reveal**: drag the smiley patch more than 80px and it fades out over 300ms and
-  stops taking pointer events, exposing the photo for good. Below the threshold it stays
-  in play. The patch is sized and placed to cover the face specifically - the crop puts
-  the head at roughly 55% across and 26% down the frame, at about half the frame width -
-  so the rest of the photo reads from the start and the face is what the drag uncovers.
 - **Connect strip**: all three cards are real `<a href>` elements first. The GitHub
   contributions graph and the repo/language stats are fetched at runtime and layered on
   top; if either request fails the scaffold and `—` placeholders simply stay.
@@ -114,7 +107,7 @@ The backdrop is two planes rather than a flat fill:
   enclosed space. It sits above the floor and below every content layer, so it shades the
   room without dimming the text.
 - **Contact shadows** - a blurred radial `::after` under each prop that stands on the
-  floor. The headshot and signature hang on the wall and deliberately get none.
+  floor. The signature hangs on the wall and deliberately gets none.
 - The chart printout uses `perspective(520px) rotateX(62deg)`, a short enough perspective
   distance that the top edge is visibly narrower than the bottom - laid flat and receding
   toward the wall rather than a flat rectangle.
