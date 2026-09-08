@@ -9,6 +9,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=IBM+Plex+Mono:wght@400&family=Caveat:wght@500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BDFLTRV0MZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BDFLTRV0MZ');
+</script>
 </head>
 <body>
 
@@ -206,7 +216,7 @@
     <div class="paper-role">
       <p class="paper-label">PREVIOUSLY</p>
       <p class="role-line">Digital Consulting Intern, Grant Thornton Bharat LLP</p>
-      <p class="role-sub">Interned in Gurugram, India · June — Aug 2026</p>
+      <p class="role-sub">Interned in Gurugram, India · July — September 2026</p>
     </div>
 
     <img class="paper-sparkle" src="assets/sparkle.svg" alt="" aria-hidden="true">
@@ -247,9 +257,9 @@
         <p class="detail-problem">Short-term stock direction is notoriously noisy to predict from price history alone.</p>
         <ul class="detail-stack"><li>Python</li><li>TensorFlow/Keras</li><li>pandas</li><li>NumPy</li><li>Matplotlib</li></ul>
         <ul class="detail-bullets">
-          <li>Engineered an LSTM forecasting model on 5+ years of historical stock data, achieving ~92% directional accuracy through MinMax-scaled preprocessing and sequence-length tuning</li>
-          <li>Ran 50+ hyperparameter tuning experiments across lookback window, LSTM units, and learning rate, reducing validation loss by ~35% and cutting mean absolute error to under $2/share</li>
-          <li>Visualized predicted vs. actual prices across 3 market regimes (bull, bear, sideways) to validate model robustness under volatility</li>
+          <li>Engineered an LSTM forecasting model in TensorFlow/Keras on 5+ years of historical stock data, achieving ~92% directional accuracy through MinMax-scaled preprocessing and sequence-length tuning</li>
+          <li>Ran 50+ hyperparameter tuning experiments across lookback window, LSTM units, and learning rate, reducing validation loss by ~35% and cutting mean absolute error to ~$2.10 per share</li>
+          <li>Visualized predicted vs. actual prices across 3 market regimes (bull, bear, sideways) using Matplotlib, validating model robustness under volatility</li>
         </ul>
       </div>
     </article>
@@ -270,7 +280,7 @@
         <ul class="detail-bullets">
           <li>Implemented user-based and item-based collaborative filtering on 100,000 MovieLens ratings using cosine similarity and KNN, reducing RMSE to ~0.89 across ~1,000 users</li>
           <li>Tested 5 similarity metrics and neighborhood sizes (k = 5 to 50) to identify the best-performing configuration, mitigating sparsity and cold-start effects</li>
-          <li>Evaluated ranking quality using precision@10 alongside RMSE, achieving ~78% precision@10 on held-out test users</li>
+          <li>Evaluated ranking quality using precision@10 and recall@10 alongside RMSE, achieving ~78% precision@10 on held-out test users</li>
         </ul>
       </div>
     </article>
@@ -311,7 +321,7 @@
         <ul class="detail-stack"><li>PostgreSQL</li><li>SQL</li><li>Power BI</li><li>Power Query</li><li>DAX</li></ul>
         <ul class="detail-bullets">
           <li>Consolidated 6 source files into a normalized PostgreSQL database, writing SQL queries that flagged 150+ duplicate and missing-value records across master and product data</li>
-          <li>Created an interactive Power BI dashboard using Power Query and DAX to track 10 data-quality KPIs, presenting findings to 3 stakeholder groups</li>
+          <li>Created an interactive Power BI dashboard using Power Query and DAX to track 10 data-quality KPIs, presenting findings to 3 stakeholder groups and driving adoption of standardized validation checks</li>
           <li>Scheduled recurring data-quality checks via SQL scripts, cutting manual audit time by ~50% each reporting cycle</li>
         </ul>
       </div>
@@ -348,7 +358,7 @@
         </div>
       </div>
       <div class="tile-detail">
-        <p class="detail-date">DIGITAL CONSULTING INTERNSHIP · JUN — AUG 2026</p>
+        <p class="detail-date">DIGITAL CONSULTING INTERNSHIP · JUL — SEP 2026</p>
         <p class="detail-problem">Client teams had manual, inconsistent reporting eating hours every week with no clear automation roadmap.</p>
         <ul class="detail-stack"><li>Python</li><li>Excel</li><li>Power BI</li><li>Stakeholder workshops</li></ul>
         <ul class="detail-bullets">

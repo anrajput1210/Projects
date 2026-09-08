@@ -18,13 +18,19 @@ Everything renders today, but some pieces are still stand-ins:
 | File | Status | Notes |
 |---|---|---|
 | `assets/headshot.jpg` | **Real** | Supplied by Ansh. Square 400×400, cropped to 4:5 via `object-fit` with `object-position: center 18%` so the crop lands on the face. Swap in a portrait-orientation original and that bias can be dropped. |
-| `assets/Ansh_Rajput_Data_Analyst.pdf` | **MISSING** | The Resume card links here and the link is dead until you add the file. Drop the real PDF at exactly this path — no code change needed. |
-| `assets/resume-thumb.svg` | Placeholder | A drawn approximation of the resume page layout, used for the card preview. Replace with a rendered first page of the real PDF for an exact preview. |
+| `assets/Ansh_Rajput_Data_Analyst.pdf` | **Real** | Ansh's resume, linked by the Resume card. Replace this file in place when the resume is updated — the path is what the card points at, so no code change is needed. |
+| `assets/resume-thumb.svg` | Placeholder | A drawn approximation of the resume page, used for the card preview — it mirrors the real document's section order but is not a render of it. No PDF rasteriser (Ghostscript / pdftoppm / ImageMagick) was available on this machine to produce a true first-page image; install one and replace this file for an exact preview. |
 | `assets/signature.svg` | Placeholder | Hand-drawn approximation; replace with a scan. |
 | `assets/proj-*.svg` | Placeholder | Generated from resume metrics, not screenshots of the actual work. Any aspect ratio works; keep ~170 units of quiet space at the bottom for the caption band. |
 | `assets/smiley.png` | **Real** | Supplied by Ansh. The source PNG sat on a white studio background; that background was flood-filled to transparent from the borders and the result cropped square, so the patch keeps its own drop shadow but carries no white box. |
 | `assets/caret-scribble.svg`, `assets/face-doodle.svg` | Keep | The hand-drawn caret and little face that sit with the SOLVING ? annotation over the headline. |
 | `assets/contrib-scaffold.svg` | Keep | Deliberately uniform — it is the placeholder shown until the live GitHub graph loads, so it must not imply activity data that was never fetched. |
+
+## Analytics
+
+Google Analytics 4 (`G-BDFLTRV0MZ`) is loaded from the document head in `index.html`.
+It is blocked by the Content-Security-Policy in the Claude artifact preview, which does
+not allow `googletagmanager.com`, so page views only register on the real host.
 
 ## Copy that still needs Ansh's approval
 
@@ -33,7 +39,18 @@ build — the design spec flags them as drafts too. They are **not** resume copy
 as `.detail-problem` in `index.html` and rewrite in your own words before this goes public.
 
 Everything else — name, contact, education, skills, project metrics, resume bullets — is
-verbatim from the spec's Section 0 and Section 5a.
+verbatim from the resume PDF. Note that the design spec's transcription differed from the
+actual PDF in several places; the PDF won each time:
+
+- the Grant Thornton internship ran **July 13 – September 13, 2026**, not June–Aug
+- LSTM mean absolute error is **~$2.10 per share**, not "under $2/share"
+- three bullets had been trimmed (the LSTM model is built **in TensorFlow/Keras**,
+  the regime chart uses **Matplotlib**, ranking quality used **precision@10 and
+  recall@10**, and the Power BI work **drove adoption of standardized validation checks**)
+
+The resume's Grant Thornton entry carries **six** bullets; the case study shows the three
+the spec selected. The other three (tool benchmarking with a 5-person team, process maps
+cutting onboarding ~20%, and 5+ stakeholder review sessions) are available to add.
 
 Two phrasings are load-bearing and should not be softened:
 
